@@ -31,10 +31,10 @@ INSTALLED_APPS = [
     'reports',
     'rest_framework_simplejwt.token_blacklist',
 ]
-
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # Must be FIRST
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -64,20 +64,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database — PostgreSQL with URL support (Supabase/Render)
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f"postgres://{env('DB_USER')}:{env('DB_PASSWORD')}@{env('DB_HOST')}:{env('DB_PORT')}/{env('DB_NAME')}",
-        conn_max_age=600,
-        ssl_require=True if not DEBUG else False
-    )
-}
-
 if env('DATABASE_URL', default=None):
-    DATABASES['default'] = dj_database_url.parse(env('DATABASE_URL'))
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=env('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True if not DEBUG else False
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME', default='postgres'),
+            'USER': env('DB_USER', default='postgres'),
+            'PASSWORD': env('DB_PASSWORD', default=''),
+            'HOST': env('DB_HOST', default='localhost'),
+            'PORT': env('DB_PORT', default='5432'),
+        }
+    }
 
+# Static & Media files
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Custom user model
-AUTH_USER_MODEL = 'users.User'
 
 # JWT Settings
 from datetime import timedelta
