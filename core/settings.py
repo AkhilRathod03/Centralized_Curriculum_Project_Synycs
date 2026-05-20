@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'ai_engine',
     'files',
     'audit',
+    'reports',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -97,6 +99,7 @@ REST_FRAMEWORK = {
 # CORS — allow React dev server
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
