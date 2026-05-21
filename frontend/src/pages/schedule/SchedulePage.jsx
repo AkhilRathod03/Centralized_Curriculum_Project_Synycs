@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { confirmAction } from '../../utils/confirmAction';
 
 // FullCalendar Imports
 import FullCalendar from '@fullcalendar/react';
@@ -38,6 +39,15 @@ const SchedulePage = () => {
         type: 'AI-Optimized'
     });
 
+    const [allocationPool, setAllocationPool] = useState([
+        { title: 'Operating Systems', color: '#2563eb' },
+        { title: 'Neural Networks', color: '#7c3aed' },
+        { title: 'Quantum Computing', color: '#06b6d4' }
+    ]);
+
+    const [showAddSubjectModal, setShowAddSubjectModal] = useState(false);
+    const [newSubject, setNewSubject] = useState({ title: '', color: '#2563eb' });
+
     useEffect(() => {
         if (!isStudent) {
             let draggableEl = document.getElementById('external-events');
@@ -54,7 +64,16 @@ const SchedulePage = () => {
                 });
             }
         }
-    }, [isStudent]);
+    }, [isStudent, allocationPool]);
+
+    const handleAddSubject = (e) => {
+        e.preventDefault();
+        if (!newSubject.title) return toast.error("Subject title required");
+        setAllocationPool([...allocationPool, newSubject]);
+        setNewSubject({ title: '', color: '#2563eb' });
+        setShowAddSubjectModal(false);
+        toast.success(`${newSubject.title} added to allocation node.`);
+    };
 
     const handleGenerateAI = () => {
         setIsGenerating(true);
@@ -87,10 +106,8 @@ const SchedulePage = () => {
         }
     };
 
-    const handleEventClick = (clickInfo) => {
-        if (isStudent) return;
-        
-        if (window.confirm(`Are you sure you want to de-allocate '${clickInfo.event.title}'?`)) {
+    const handleEventClick = async (clickInfo) => {
+        if (!isStudent && await confirmAction(`Are you sure you want to de-allocate '${clickInfo.event.title}'?`)) {
             clickInfo.event.remove();
             setEvents(prev => prev.filter(e => e.id !== clickInfo.event.id));
             toast.info(`${clickInfo.event.title} returned to allocation node.`);
@@ -168,13 +185,19 @@ const SchedulePage = () => {
                         </PremiumCard>
 
                         <div id="allocation-card">
-                            <PremiumCard title="Allocation Node" icon={<FaPlus className="text-success" />} subtitle="Drag to timetable | Drag BACK to return">
+                            <PremiumCard 
+                                title="Allocation Node" 
+                                icon={<FaRegCalendarCheck className="text-success" />} 
+                                subtitle="Drag to timetable | Drag BACK to return"
+                            >
+                                <button 
+                                    className="btn btn-sm btn-light-success rounded-pill w-100 fw-bold d-flex align-items-center justify-content-center gap-2 mb-3 shadow-sm border py-2"
+                                    onClick={() => setShowAddSubjectModal(true)}
+                                >
+                                    <FaPlus size={10} /> Add New Subject
+                                </button>
                                 <div id="external-events" className="mt-2">
-                                    {[
-                                        { title: 'Operating Systems', color: '#2563eb' },
-                                        { title: 'Neural Networks', color: '#7c3aed' },
-                                        { title: 'Quantum Computing', color: '#06b6d4' }
-                                    ].map((ev, i) => (
+                                    {allocationPool.map((ev, i) => (
                                         <div 
                                             key={i} 
                                             className="fc-event d-flex align-items-center p-3 rounded-4 mb-2 cursor-pointer transition-all hover-lift shadow-sm border-0"
@@ -222,7 +245,49 @@ const SchedulePage = () => {
                 </div>
             </div>
 
+            {/* Add Subject Modal */}
+            <AnimatePresence>
+                {showAddSubjectModal && (
+                    <div className="modal d-block" style={{ zIndex: 2000, backgroundColor: 'rgba(0,0,0,0.5)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
+                        <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content border-0 rounded-5 shadow-2xl overflow-hidden">
+                                <form onSubmit={handleAddSubject}>
+                                    <div className="modal-header border-0 p-4 bg-success text-white">
+                                        <h5 className="fw-bold mb-0">Add New Subject</h5>
+                                        <button type="button" className="btn-close btn-close-white shadow-none" onClick={() => setShowAddSubjectModal(false)}></button>
+                                    </div>
+                                    <div className="modal-body p-4">
+                                        <div className="mb-4">
+                                            <label className="form-label smaller fw-bold text-muted uppercase">Subject Title</label>
+                                            <input type="text" className="form-control border-light py-3 rounded-4" placeholder="e.g. Distributed Systems" value={newSubject.title} onChange={e => setNewSubject({ ...newSubject, title: e.target.value })} required />
+                                        </div>
+                                        <div className="mb-4">
+                                            <label className="form-label smaller fw-bold text-muted uppercase">Allocation Color</label>
+                                            <div className="d-flex gap-3">
+                                                {['#2563eb', '#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'].map(c => (
+                                                    <div 
+                                                        key={c} 
+                                                        className={`rounded-circle cursor-pointer border-3 ${newSubject.color === c ? 'border-dark' : 'border-white'}`}
+                                                        style={{ backgroundColor: c, width: '32px', height: '32px' }}
+                                                        onClick={() => setNewSubject({ ...newSubject, color: c })}
+                                                    ></div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer border-0 p-4 pt-0">
+                                        <button type="submit" className="btn btn-success w-100 py-3 rounded-pill fw-bold">Add to Pool</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             <style>{`
+                .btn-light-success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+                .btn-light-success:hover { background-color: #10b981; color: white; }
                 .fc .fc-toolbar-title { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
                 .fc .fc-button-primary { background: var(--primary) !important; border: none !important; border-radius: 100px !important; padding: 0.4rem 1.1rem !important; font-weight: 600 !important; font-size: 0.75rem !important; text-transform: uppercase; letter-spacing: 0.05em; }
                 .fc .fc-button-primary:hover { background: var(--primary-hover) !important; transform: translateY(-1px); }

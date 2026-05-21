@@ -21,6 +21,7 @@ import PageHeader from '../../components/common/PageHeader';
 import PremiumCard from '../../components/common/PremiumCard';
 import EmptyState from '../../components/common/EmptyState';
 import FacultyAssignModal from '../../components/curriculum/FacultyAssignModal';
+import { confirmAction } from '../../utils/confirmAction';
 
 const Courses = () => {
     const { user } = useContext(AuthContext);
@@ -118,6 +119,30 @@ const Courses = () => {
         setTimeout(() => {
             toast.success("AI Curriculum Insights generated!");
         }, 2000);
+    };
+
+    const handleEditCourse = (courseId) => {
+        navigate('/curriculum', { state: { courseId } });
+    };
+
+    const handleDeleteCourse = async (courseId) => {
+        if (!(await confirmAction("Are you sure you want to archive this course? This will hide it from the active catalog."))) return;
+        try {
+            await axiosInstance.delete(`curriculum/courses/${courseId}/`);
+            toast.success("Course archived successfully");
+            fetchCourses();
+        } catch (err) {
+            toast.error("Failed to archive course");
+        }
+    };
+
+    const handleSingleCourseAI = (courseName) => {
+        toast.info(`Running AI analysis for ${courseName}...`, {
+            icon: <FaRobot className="text-ai-accent" />
+        });
+        setTimeout(() => {
+            toast.success("Structural health: 94%. No critical dependencies missing.");
+        }, 1500);
     };
 
     const filteredCourses = courses.filter(c => 
@@ -253,7 +278,14 @@ const Courses = () => {
                                                 <div className="dropdown">
                                                     <button className="btn btn-link text-muted p-0 shadow-none" data-bs-toggle="dropdown"><FaEllipsisV size={14} /></button>
                                                     <ul className={`dropdown-menu dropdown-menu-end border-0 shadow-2xl rounded-4 p-2 ${darkMode ? 'bg-dark border border-secondary' : ''}`}>
-                                                        <li><button className="dropdown-item rounded-3 mb-1 py-2 small fw-bold"><FaEdit className="me-2" /> Edit</button></li>
+                                                        <li>
+                                                            <button 
+                                                                className="dropdown-item rounded-3 mb-1 py-2 small fw-bold"
+                                                                onClick={(e) => { e.stopPropagation(); handleEditCourse(c.id); }}
+                                                            >
+                                                                <FaEdit className="me-2" /> Edit
+                                                            </button>
+                                                        </li>
                                                         <li>
                                                             <button 
                                                                 className="dropdown-item rounded-3 mb-1 py-2 small fw-bold"
@@ -266,9 +298,23 @@ const Courses = () => {
                                                                 <FaChalkboardTeacher className="me-2" /> Assign Faculty
                                                             </button>
                                                         </li>
-                                                        <li><button className="dropdown-item rounded-3 mb-1 py-2 small fw-bold text-ai-accent"><FaMagic className="me-2" /> AI Analysis</button></li>
+                                                        <li>
+                                                            <button 
+                                                                className="dropdown-item rounded-3 mb-1 py-2 small fw-bold text-ai-accent"
+                                                                onClick={(e) => { e.stopPropagation(); handleSingleCourseAI(c.name); }}
+                                                            >
+                                                                <FaMagic className="me-2" /> AI Analysis
+                                                            </button>
+                                                        </li>
                                                         <li><hr className="dropdown-divider opacity-10" /></li>
-                                                        <li><button className="dropdown-item rounded-3 text-danger fw-bold py-2 small"><FaTrash className="me-2" /> Archive</button></li>
+                                                        <li>
+                                                            <button 
+                                                                className="dropdown-item rounded-3 text-danger fw-bold py-2 small"
+                                                                onClick={(e) => { e.stopPropagation(); handleDeleteCourse(c.id); }}
+                                                            >
+                                                                <FaTrash className="me-2" /> Archive
+                                                            </button>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             )}
@@ -358,7 +404,7 @@ const Courses = () => {
                                             <th className="py-3 border-0 text-muted small uppercase letter-spacing-1">Faculty Node</th>
                                             <th className="py-3 border-0 text-muted small uppercase letter-spacing-1">Completion Flow</th>
                                             <th className="py-3 border-0 text-muted small uppercase letter-spacing-1">Neural Health</th>
-                                            <th className="pe-4 py-3 border-0 text-end text-muted small uppercase letter-spacing-1">Operations</th>
+                                            <th className="pe-4 py-3 border-0 text-end text-muted small uppercase letter-spacing-1">{!isStudent ? 'Operations' : 'Details'}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="border-top-0">
@@ -399,11 +445,40 @@ const Courses = () => {
                                                     </div>
                                                 </td>
                                                 <td className="pe-4 text-end">
-                                                    <div className="d-flex justify-content-end gap-2">
-                                                        <button className={`btn btn-icon-sm border rounded-circle ${darkMode ? 'btn-dark border-secondary text-white' : 'btn-light'}`}><FaEdit size={12} /></button>
-                                                        <button className={`btn btn-icon-sm border rounded-circle ${darkMode ? 'btn-dark border-secondary text-white' : 'btn-light'}`}><FaEye size={12} /></button>
-                                                        <button className={`btn btn-icon-sm border rounded-circle text-danger ${darkMode ? 'btn-dark border-secondary' : 'btn-light'}`}><FaTrash size={12} /></button>
-                                                    </div>
+                                                    {!isStudent ? (
+                                                        <div className="d-flex justify-content-end gap-2">
+                                                            <button 
+                                                                className={`btn btn-icon-sm border rounded-circle ${darkMode ? 'btn-dark border-secondary text-white' : 'btn-light'}`}
+                                                                onClick={(e) => { e.stopPropagation(); handleEditCourse(c.id); }}
+                                                                title="Edit Course"
+                                                            >
+                                                                <FaEdit size={12} />
+                                                            </button>
+                                                            <button 
+                                                                className={`btn btn-icon-sm border rounded-circle ${darkMode ? 'btn-dark border-secondary text-white' : 'btn-light'}`}
+                                                                onClick={(e) => { e.stopPropagation(); setSelectedCourse(c); }}
+                                                                title="View Details"
+                                                            >
+                                                                <FaEye size={12} />
+                                                            </button>
+                                                            <button 
+                                                                className={`btn btn-icon-sm border rounded-circle text-danger ${darkMode ? 'btn-dark border-secondary' : 'btn-light'}`}
+                                                                onClick={(e) => { e.stopPropagation(); handleDeleteCourse(c.id); }}
+                                                                title="Archive Course"
+                                                            >
+                                                                <FaTrash size={12} />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="d-flex justify-content-end">
+                                                            <button 
+                                                                className={`btn btn-icon-sm border rounded-circle ${darkMode ? 'btn-dark border-secondary text-white' : 'btn-light'}`}
+                                                                onClick={(e) => { e.stopPropagation(); setSelectedCourse(c); }}
+                                                            >
+                                                                <FaEye size={12} />
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

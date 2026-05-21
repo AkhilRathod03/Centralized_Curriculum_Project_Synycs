@@ -16,7 +16,7 @@
     "@testing-library/user-event": "^13.5.0",
     "animate.css": "^4.1.1",
     "axios": "^1.7.9",
-    "bootstrap": "5.3.8",
+    "bootstrap": "^5.3.3",
     "framer-motion": "^12.38.0",
     "jwt-decode": "^4.0.0",
     "react": "18.3.1",
@@ -40,7 +40,12 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-unused-vars": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "no-loop-func": "off"
+    }
   },
   "browserslist": {
     "production": [

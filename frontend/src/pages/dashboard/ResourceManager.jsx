@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
+import { confirmAction } from '../../utils/confirmAction';
 import PageHeader from '../../components/common/PageHeader';
 import PremiumCard from '../../components/common/PremiumCard';
 import EmptyState from '../../components/common/EmptyState';
@@ -111,7 +112,7 @@ const ResourceManager = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this resource?')) return;
+        if (!(await confirmAction('Are you sure you want to delete this resource?'))) return;
         try {
             await axiosInstance.delete(`files/resources/${id}/`);
             toast.success('Resource purged from cloud');

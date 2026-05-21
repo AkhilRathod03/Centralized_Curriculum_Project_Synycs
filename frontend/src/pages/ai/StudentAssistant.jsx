@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import axiosInstance from '../../api/axiosInstance';
+import { confirmAction } from '../../utils/confirmAction';
 
 const StudentAssistant = () => {
     const { user } = useContext(AuthContext);
@@ -62,8 +63,8 @@ const StudentAssistant = () => {
         }
     };
 
-    const clearChat = () => {
-        if (window.confirm("Clear all conversation history?")) {
+    const clearChat = async () => {
+        if (await confirmAction("Clear all conversation history?")) {
             setChatHistory([]);
         }
     };

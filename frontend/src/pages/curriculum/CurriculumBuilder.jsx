@@ -33,6 +33,7 @@ import EmptyState from '../../components/common/EmptyState';
 import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import { toast } from 'react-toastify';
+import { confirmAction } from '../../utils/confirmAction';
 
 const CurriculumBuilder = () => {
     const navigate = useNavigate();
@@ -366,9 +367,8 @@ const CurriculumBuilder = () => {
         else if (view === 'branches') setView('degrees');
     };
 
-    const handleDelete = async (type, id) => {
-        if (!window.confirm(`Are you sure you want to permanently delete this ${type}? This action cannot be undone.`)) return;
-
+    const handleDeleteNode = async (type, id) => {
+        if (!(await confirmAction(`Are you sure you want to permanently delete this ${type}? This action cannot be undone.`))) return;
         try {
             setLoading(true);
             let url = '';
@@ -829,7 +829,7 @@ const CurriculumBuilder = () => {
                                                                             </button>
                                                                         }
                                                                         onEdit={() => handleCreate('module', null, m)}
-                                                                        onDelete={() => handleDelete('module', m.id)}
+                                                                        onDelete={() => handleDeleteNode('module', m.id)}
                                                                     />
                                                                     <AnimatePresence>
                                                                         {expandedModules[m.id] && (
@@ -848,7 +848,7 @@ const CurriculumBuilder = () => {
                                                                                             <button className="btn btn-icon-sm btn-light border rounded-circle" onClick={(e) => { e.stopPropagation(); handleCreate('topic', m.id, topic); }}>
                                                                                                 <FaEdit size={10} className="text-primary" />
                                                                                             </button>
-                                                                                            <button className="btn btn-icon-sm btn-light border rounded-circle" onClick={(e) => { e.stopPropagation(); handleDelete('topic', topic.id); }}>
+                                                                                            <button className="btn btn-icon-sm btn-light border rounded-circle" onClick={(e) => { e.stopPropagation(); handleDeleteNode('topic', topic.id); }}>
                                                                                                 <FaTrash size={10} className="text-danger" />
                                                                                             </button>
                                                                                         </div>
