@@ -14,8 +14,8 @@ const Login = () => {
     const navigate = useNavigate();
 
     const roles = [
-        { id: 'admin', label: 'Admin', icon: <FaShieldAlt />, color: '#6366f1' },
-        { id: 'teacher', label: 'Teacher', icon: <FaChalkboardTeacher />, color: '#a855f7' },
+        { id: 'admin', label: 'Admin', icon: <FaShieldAlt />, color: '#2d2d2d' },
+        { id: 'teacher', label: 'Teacher', icon: <FaChalkboardTeacher />, color: '#333333' },
         { id: 'student', label: 'Student', icon: <FaUserGraduate />, color: '#ec4899' }
     ];
 
@@ -144,7 +144,7 @@ const Login = () => {
             <style>{`
                 .hover-white:hover { color: white !important; }
                 .login-container {
-                    background: #0f172a;
+                    background: #000000;
                     overflow: hidden;
                     position: relative;
                 }
@@ -154,3 +154,4 @@ const Login = () => {
 };
 
 export default Login;
+

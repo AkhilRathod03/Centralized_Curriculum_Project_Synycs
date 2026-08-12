@@ -1,4 +1,4 @@
-# CCMS PRO: Centralized Curriculum Management System
+# CurveIQ: Curriculum Intelligence System
 ## *The Future of Institutional Academic Excellence*
 
 **Date:** May 20, 2026  
@@ -10,20 +10,20 @@
 
 ## 1. Executive Summary
 
-**CCMS Pro** is an enterprise-grade, AI-integrated educational management platform designed to unify the fragmented academic lifecycle. By bridging the gap between curriculum design, faculty execution, and student outcomes, CCMS Pro provides institutions with a "Neural Academic Core" that automates administrative overhead, generates intelligent pedagogical insights, and ensures complete transparency through data-driven reporting.
+**CurveIQ** is an enterprise-grade, AI-integrated educational management platform designed to unify the fragmented academic lifecycle. By bridging the gap between curriculum design, faculty execution, and student outcomes, CurveIQ provides institutions with a "Neural Academic Core" that automates administrative overhead, generates intelligent pedagogical insights, and ensures complete transparency through data-driven reporting.
 
-Built with a modern tech stack (React, Django REST, and Google Gemini AI), CCMS Pro transforms traditional static syllabuses into dynamic, interactive, and measurable learning pathways.
+Built with a modern tech stack (React, Django REST, and Google Gemini AI), CurveIQ transforms traditional static syllabuses into dynamic, interactive, and measurable learning pathways.
 
 ---
 
-## 2. The Challenge: Why CCMS Pro?
+## 2. The Challenge: Why CurveIQ?
 
 Modern institutions face three critical bottlenecks:
 1.  **Fragmented Data:** Curriculum, attendance, and student performance live in disconnected silos.
 2.  **Administrative Overhead:** Teachers spend 40% of their time on planning and assessment drafting rather than teaching.
 3.  **Lack of Real-time Insight:** Admins and HODs only discover academic risks (low attendance/performance) after the semester ends.
 
-**CCMS Pro solves these by centralizing the "Academic DNA" of the institution.**
+**CurveIQ solves these by centralizing the "Academic DNA" of the institution.**
 
 ---
 
@@ -60,7 +60,7 @@ The system is designed for high performance, scalability, and security:
 
 ## 5. Landmark Feature: The AI Architect Studio
 
-The crown jewel of CCMS Pro is its **AI Architect Studio**, which utilizes Generative AI to assist teachers in curriculum design:
+The crown jewel of CurveIQ is its **AI Architect Studio**, which utilizes Generative AI to assist teachers in curriculum design:
 
 1.  **Syllabus Architect:** Automatically generates a 5-unit, standard academic syllabus for any new course, ensuring it follows university standards.
 2.  **Lesson Planner:** Drafts 60-minute teaching plans, including learning objectives, activities, and time-blocks.
@@ -71,7 +71,7 @@ The crown jewel of CCMS Pro is its **AI Architect Studio**, which utilizes Gener
 
 ## 6. Data-Driven Intelligence Reporting
 
-CCMS Pro goes beyond simple tables. Its reporting engine provides:
+CurveIQ goes beyond simple tables. Its reporting engine provides:
 *   **Institutional Snapshots:** AI-summarized reports on current academic health.
 *   **Risk Analysis:** Identification of "Weak Student Clusters" before they fail a semester.
 *   **Career Readiness Profile:** A professional PDF report for students that uses AI to analyze their GPA and attendance, providing a summary for potential employers.
@@ -87,7 +87,7 @@ CCMS Pro goes beyond simple tables. Its reporting engine provides:
 
 ---
 
-## 8. Roadmap: The Future of CCMS Pro
+## 8. Roadmap: The Future of CurveIQ
 
 *   **Module 3.0:** Integration of Automated Timetable Generation using constraint-satisfaction AI.
 *   **LMS Connect:** Direct integration with Google Classroom and Microsoft Teams.
@@ -95,4 +95,4 @@ CCMS Pro goes beyond simple tables. Its reporting engine provides:
 
 ---
 
-**CCMS Pro is not just a management system; it is an Institutional OS for the AI Era.**
+**CurveIQ is not just a management system; it is an Institutional OS for the AI Era.**

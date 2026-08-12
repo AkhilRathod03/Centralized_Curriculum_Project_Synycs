@@ -218,12 +218,12 @@ const AdminDashboard = () => {
             {/* 2. KPI Cards - Analytics First */}
             <div className="row g-3 mb-4">
                 {[
-                    { label: 'Students', val: stats.studentCount, icon: <FaUserGraduate />, color: '#2563eb', path: '/students', trend: '+12.5%' },
+                    { label: 'Students', val: stats.studentCount, icon: <FaUserGraduate />, color: '#000000', path: '/students', trend: '+12.5%' },
                     { label: 'Faculty', val: stats.teacherCount, icon: <FaChalkboardTeacher />, color: '#10b981', path: '/teachers', trend: 'Stable' },
-                    { label: 'Programs', val: stats.programCount, icon: <FaLayerGroup />, color: '#7c3aed', path: '/programs', trend: '+2' },
+                    { label: 'Programs', val: stats.programCount, icon: <FaLayerGroup />, color: '#1a1a1a', path: '/programs', trend: '+2' },
                     { label: 'Courses', val: stats.courseCount, icon: <FaBook />, color: '#f59e0b', path: '/courses', trend: '+4.2%' },
                     { label: 'Audit Desk', val: stats.pendingApprovals, icon: <FaUserShield />, color: '#ef4444', path: '/users', trend: '-2' },
-                    { label: 'Performance', val: `${stats.overallCompletion}%`, icon: <FaChartLine />, color: '#06b6d4', path: '/curriculum', trend: '+5.1%' },
+                    { label: 'Performance', val: `${stats.overallCompletion}%`, icon: <FaChartLine />, color: '#333333', path: '/curriculum', trend: '+5.1%' },
                 ].map((s, i) => (
                     <motion.div key={i} className="col-6 col-md-4 col-xl-2" variants={itemVariants}>
                         <div className="card-modern p-3 h-100 border-0 glass shadow-sm hover-lift cursor-pointer" onClick={() => navigate(s.path)}>
@@ -285,8 +285,8 @@ const AdminDashboard = () => {
                                 <AreaChart data={engagementData}>
                                     <defs>
                                         <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15}/>
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="#1a1a1a" stopOpacity={0.15}/>
+                                            <stop offset="95%" stopColor="#1a1a1a" stopOpacity={0}/>
                                         </linearGradient>
                                         <linearGradient id="colorTeachers" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.15}/>
@@ -298,7 +298,7 @@ const AdminDashboard = () => {
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                                     <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--card-shadow)', backgroundColor: darkMode ? '#1e293b' : '#fff', fontSize: '11px' }} />
                                     <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }}/>
-                                    <Area type="monotone" name="Students" dataKey="students" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorStudents)" />
+                                    <Area type="monotone" name="Students" dataKey="students" stroke="#1a1a1a" strokeWidth={3} fillOpacity={1} fill="url(#colorStudents)" />
                                     <Area type="monotone" name="Teachers" dataKey="teachers" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorTeachers)" />
                                 </AreaChart>
                             </ResponsiveContainer>
@@ -327,7 +327,7 @@ const AdminDashboard = () => {
                                 {[
                                     { type: 'Prerequisite', msg: 'Missing DS before Algorithms', sev: 'CRITICAL', color: '#ef4444' },
                                     { type: 'Optimization', msg: 'Merge Duplicate Modules', sev: 'STRATEGY', color: '#f59e0b' },
-                                    { type: 'Taxonomy', msg: 'Low "Create" Level Objectives', sev: 'ANALYSIS', color: '#06b6d4' }
+                                    { type: 'Taxonomy', msg: 'Low "Create" Level Objectives', sev: 'ANALYSIS', color: '#333333' }
                                 ].map((alert, idx) => (
                                     <div key={idx} className="p-3 rounded-4 bg-white bg-opacity-5 border border-white border-opacity-10 cursor-pointer hover-bg-opacity-20 transition-all shadow-sm mb-2">
                                         <div className="d-flex align-items-center justify-content-between mb-2">
@@ -459,3 +459,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

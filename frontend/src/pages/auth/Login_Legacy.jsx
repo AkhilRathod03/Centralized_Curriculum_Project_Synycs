@@ -20,7 +20,7 @@ const Login = () => {
             icon: <FaUserShield size={32} />,
             inputIcon: <FaUserShield />,
             color: 'primary',
-            themeColor: '#0d6efd',
+            themeColor: '#000000',
             placeholder: 'Enter Admin Username'
         },
         { 
@@ -238,7 +238,7 @@ const Login = () => {
                 .btn-login { border-width: 2px; }
                 .backdrop-blur { backdrop-filter: blur(10px); }
                 .transform-active:active { transform: scale(0.98); }
-                .hover-primary:hover { color: #0d6efd !important; }
+                .hover-primary:hover { color: #000000 !important; }
                 
                 @keyframes blur-fade {
                     from { opacity: 0; }
@@ -250,3 +250,4 @@ const Login = () => {
 };
 
 export default Login;
+

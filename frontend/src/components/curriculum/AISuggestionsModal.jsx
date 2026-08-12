@@ -8,7 +8,7 @@ const AISuggestionsModal = ({ show, handleClose, suggestions, onApply, onAddTopi
 
     if (!show || !suggestions) return null;
 
-    const { reorders = [], missing_topics = [], new_modules = [], reasoning = "" } = suggestions;
+    const { reorders = [], missing_topics = [], new_modules = [], reasoning = "", error = null } = suggestions;
 
     return (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', zIndex: 3000 }}>
@@ -32,11 +32,24 @@ const AISuggestionsModal = ({ show, handleClose, suggestions, onApply, onAddTopi
                     </div>
 
                     <div className="modal-body p-4 custom-scrollbar" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                        {/* Error State */}
+                        {error && (
+                            <div className="alert alert-danger rounded-4 d-flex align-items-center gap-3 mb-4">
+                                <FaExclamationTriangle size={24} />
+                                <div>
+                                    <h6 className="fw-bold mb-0">Neural Core Interrupted</h6>
+                                    <p className="small mb-0 opacity-80">{error}</p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Reasoning */}
-                        <div className={`p-3 rounded-4 mb-4 ${darkMode ? 'bg-primary bg-opacity-10 border border-primary border-opacity-20' : 'bg-light border'}`}>
-                            <h6 className="fw-bold text-primary small uppercase mb-2">AI Reasoning & Academic Standards</h6>
-                            <p className="small mb-0 opacity-80">{reasoning || "Standardizing your curriculum to 5 logical units for industrial and academic completeness."}</p>
-                        </div>
+                        {!error && (
+                            <div className={`p-3 rounded-4 mb-4 ${darkMode ? 'bg-primary bg-opacity-10 border border-primary border-opacity-20' : 'bg-light border'}`}>
+                                <h6 className="fw-bold text-primary small uppercase mb-2">AI Reasoning & Academic Standards</h6>
+                                <p className="small mb-0 opacity-80">{reasoning || "Standardizing your curriculum to 5 logical units for industrial and academic completeness."}</p>
+                            </div>
+                        )}
 
                         <div className="row g-4">
                             {/* Missing Modules (To reach 5) */}

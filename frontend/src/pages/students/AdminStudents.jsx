@@ -57,7 +57,7 @@ const AdminStudents = () => {
     );
 
     const stats = [
-        { label: 'Total Students', value: students.length, trend: '+12%', color: '#2563eb', icon: <FaUserGraduate /> },
+        { label: 'Total Students', value: students.length, trend: '+12%', color: '#000000', icon: <FaUserGraduate /> },
         { label: 'Active Status', value: students.filter(s => s.is_approved).length, trend: 'Stable', color: '#10b981', icon: <FaCheckCircle /> },
         { label: 'Students At Risk', value: 8, trend: '+3', color: '#ef4444', icon: <FaExclamationTriangle /> },
         { label: 'Avg Attendance', value: '84%', trend: '-2%', color: '#f59e0b', icon: <FaClock /> }
@@ -281,9 +281,9 @@ const AdminStudents = () => {
             </AnimatePresence>
 
             <style>{`
-                .ai-neon-card { background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); }
-                .bg-ai-gradient { background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%); }
-                .text-ai-accent { color: #7c3aed; }
+                .ai-neon-card { background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); }
+                .bg-ai-gradient { background: linear-gradient(90deg, #1a1a1a 0%, #333333 100%); }
+                .text-ai-accent { color: #1a1a1a; }
                 .letter-spacing-1 { letter-spacing: 1px; }
                 .smaller { font-size: 0.75rem; }
                 .z-2000 { z-index: 2000; }
@@ -294,3 +294,4 @@ const AdminStudents = () => {
 };
 
 export default AdminStudents;
+

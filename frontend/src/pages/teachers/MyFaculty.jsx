@@ -107,7 +107,7 @@ const MyFaculty = () => {
             </div>
 
             <style>{`
-                .bg-ai-gradient { background: linear-gradient(90deg, #7c3aed 0%, #2563eb 100%); }
+                .bg-ai-gradient { background: linear-gradient(90deg, #1a1a1a 0%, #000000 100%); }
                 .letter-spacing-1 { letter-spacing: 1px; }
             `}</style>
         </div>
@@ -115,3 +115,4 @@ const MyFaculty = () => {
 };
 
 export default MyFaculty;
+

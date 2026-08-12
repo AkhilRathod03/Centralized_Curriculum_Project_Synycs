@@ -55,7 +55,17 @@ const Login = () => {
             toast.success(`Welcome back!`);
             navigate(`/${user.role}-dashboard`);
         } catch (err) {
-            toast.error('Invalid Credentials');
+            console.error("Login component error:", err);
+            let errorMsg = 'Invalid Credentials';
+            const data = err.response?.data;
+            if (data) {
+                if (data.detail) {
+                    errorMsg = Array.isArray(data.detail) ? data.detail[0] : data.detail;
+                } else if (data.error) {
+                    errorMsg = Array.isArray(data.error) ? data.error[0] : data.error;
+                }
+            }
+            toast.error(errorMsg);
         } finally {
             setIsLoading(false);
         }
@@ -103,10 +113,10 @@ const Login = () => {
                         transition={{ duration: 1 }}
                     >
                         <h1 className="portal-title-huge">
-                            Centralized <br />
+                            Curve<span style={{ color: 'var(--primary)' }}>IQ</span> <br />
                             Curriculum <br />
-                            Management <br />
-                            System
+                            Intelligence <br />
+                            Portal
                         </h1>
                     </motion.div>
 
@@ -134,7 +144,8 @@ const Login = () => {
                                 className="glass-card-ultra"
                             >
                                 <div className="text-center mb-4">
-                                    <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#0f172a' }}>Access Portal</h2>
+                                    <img src="/curveiq_logo.png" alt="CurveIQ Logo" className="shadow-lg mb-3" style={{ height: '95px', width: '140px', objectFit: 'contain', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                                    <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#000000' }}>Access Portal</h2>
                                     <p className="text-white opacity-40 smaller fw-600 uppercase tracking-widest">Security Protocol Required</p>
                                 </div>
 
@@ -168,7 +179,7 @@ const Login = () => {
                                                     style={{ 
                                                         zIndex: 1, 
                                                         transition: 'all 0.3s ease',
-                                                        color: selectedRole === key ? '#ffffff' : '#0f172a',
+                                                        color: selectedRole === key ? '#ffffff' : '#000000',
                                                         opacity: selectedRole === key ? 1 : 0.8
                                                     }}
                                                 >
@@ -259,7 +270,7 @@ const Login = () => {
                                 className="glass-card-ultra"
                             >
                                 <div className="text-center mb-4">
-                                    <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#0f172a' }}>Identity Recovery</h2>
+                                    <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#000000' }}>Identity Recovery</h2>
                                     <p className="text-white opacity-40 smaller fw-600 uppercase tracking-widest">Enter Communication Node (Email)</p>
                                 </div>
 
@@ -313,7 +324,7 @@ const Login = () => {
                                 className="glass-card-ultra"
                             >
                                 <div className="text-center mb-4">
-                                    <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#0f172a' }}>Security Update</h2>
+                                    <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#000000' }}>Security Update</h2>
                                     <p className="text-white opacity-40 smaller fw-600 uppercase tracking-widest">Set New Access Secret</p>
                                 </div>
 
@@ -378,3 +389,4 @@ const Login = () => {
 };
 
 export default Login;
+

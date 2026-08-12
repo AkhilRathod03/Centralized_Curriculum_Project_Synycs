@@ -163,15 +163,15 @@ const AdminAttendance = () => {
                                 <AreaChart data={monthlyTrends}>
                                     <defs>
                                         <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
-                                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="#000000" stopOpacity={0.8}/>
+                                            <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: darkMode ? '#aaa' : '#666', fontSize: 12}} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: darkMode ? '#aaa' : '#666', fontSize: 12}} domain={['dataMin - 5', 100]} />
                                     <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', backgroundColor: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#fff' : '#000', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}/>
-                                    <Area type="monotone" dataKey="rate" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorRate)" />
+                                    <Area type="monotone" dataKey="rate" stroke="#000000" strokeWidth={3} fillOpacity={1} fill="url(#colorRate)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -275,3 +275,4 @@ const AdminAttendance = () => {
 };
 
 export default AdminAttendance;
+

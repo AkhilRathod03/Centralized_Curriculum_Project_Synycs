@@ -78,7 +78,7 @@ const StudentAssistant = () => {
                     className={`chat-container shadow-2xl overflow-hidden d-flex flex-column rounded-5 border ${
                         darkMode 
                         ? 'bg-slate-900 border-white border-opacity-10' 
-                        : 'bg-glass-light border-azure-soft shadow-azure-glow'
+                        : 'bg-glass-light border-noir-soft shadow-noir-glow'
                     }`}
                     style={{ height: isFullScreen ? '100vh' : '85vh' }}
                 >
@@ -89,7 +89,7 @@ const StudentAssistant = () => {
                                 <FaRobot size={22} />
                             </div>
                             <div>
-                                <h5 className="fw-bold mb-0">CCMS Student Mentor</h5>
+                                <h5 className="fw-bold mb-0">CurveIQ Student Mentor</h5>
                                 <div className="d-flex align-items-center gap-2">
                                     <div className="pulse-green rounded-circle" style={{width: '8px', height: '8px', backgroundColor: '#10b981'}}></div>
                                     <span className="text-white-50 text-xs uppercase letter-spacing-1 fw-bold">Online & Helpful</span>
@@ -108,7 +108,7 @@ const StudentAssistant = () => {
 
                     {/* Chat Area */}
                     <div className={`flex-grow-1 overflow-y-auto p-4 d-flex flex-column gap-4 bg-ai-mesh custom-scrollbar ${
-                        darkMode ? '' : 'bg-azure-subtle'
+                        darkMode ? '' : 'bg-noir-subtle'
                     }`}>
                         {chatHistory.length === 0 && (
                             <div className="h-100 d-flex flex-column align-items-center justify-content-center text-center opacity-75">
@@ -151,14 +151,14 @@ const StudentAssistant = () => {
                                     ? 'bg-primary text-white rounded-tr-none user-bubble' 
                                     : darkMode 
                                         ? 'bg-slate-800 text-white rounded-tl-none border border-white border-opacity-5' 
-                                        : 'bg-white border border-azure-light text-dark rounded-tl-none ai-bubble-azure'
+                                        : 'bg-white border border-noir-light text-dark rounded-tl-none ai-bubble-noir'
                                 }`}>
                                     <div className="d-flex align-items-center gap-2 mb-3 opacity-75">
                                         <div className={`p-1 rounded-circle ${msg.role === 'user' ? 'bg-white text-primary' : 'bg-primary text-white'}`}>
                                             {msg.role === 'user' ? <FaUserGraduate size={10} /> : <FaRobot size={10} />}
                                         </div>
                                         <span className={`text-xs fw-bold uppercase letter-spacing-1 ${!darkMode && msg.role === 'ai' ? 'text-primary' : ''}`}>
-                                            {msg.role === 'user' ? 'You' : 'CCMS Student Mentor'}
+                                            {msg.role === 'user' ? 'You' : 'CurveIQ Student Mentor'}
                                         </span>
                                     </div>
                                     <div className="chat-text markdown-content" style={{ whiteSpace: 'pre-wrap', fontSize: '1rem', lineHeight: '1.6' }}>
@@ -171,7 +171,7 @@ const StudentAssistant = () => {
                         {isGenerating && (
                             <div className="d-flex justify-content-start">
                                 <div className={`chat-bubble p-4 rounded-5 shadow-sm ${
-                                    darkMode ? 'bg-slate-800 text-white' : 'bg-white border border-azure-light'
+                                    darkMode ? 'bg-slate-800 text-white' : 'bg-white border border-noir-light'
                                 }`}>
                                     <div className="d-flex align-items-center gap-3">
                                         <div className="p-1 rounded-circle bg-primary text-white">
@@ -187,7 +187,7 @@ const StudentAssistant = () => {
 
                     {/* Input Area */}
                     <div className={`p-4 border-top ${
-                        darkMode ? 'bg-slate-900 border-white border-opacity-10' : 'bg-white border-azure-soft'
+                        darkMode ? 'bg-slate-900 border-white border-opacity-10' : 'bg-white border-noir-soft'
                     }`}>
                         <form onSubmit={handleGenerate} className="d-flex gap-3 max-w-1000 mx-auto">
                             <div className="flex-grow-1 position-relative">
@@ -196,7 +196,7 @@ const StudentAssistant = () => {
                                     className={`form-control rounded-pill px-5 py-4 shadow-lg border-2 ${
                                         darkMode 
                                         ? 'bg-slate-800 border-white border-opacity-5 text-white' 
-                                        : 'bg-light border-azure-light text-dark'
+                                        : 'bg-light border-noir-light text-dark'
                                     } focus-primary`}
                                     placeholder="Ask your academic doubt or request study help..."
                                     value={prompt}
@@ -218,7 +218,7 @@ const StudentAssistant = () => {
                             </button>
                         </form>
                         <p className="text-center text-xs text-muted mt-3 mb-0 opacity-50">
-                            CCMS AI may provide inaccurate info. Always cross-verify with your course materials.
+                            CurveIQ AI may provide inaccurate info. Always cross-verify with your course materials.
                         </p>
                     </div>
                 </motion.div>
@@ -235,16 +235,16 @@ const StudentAssistant = () => {
                 
                 .chat-container { height: 85vh; }
                 .bg-slate-900 { background-color: #020617; }
-                .bg-slate-800 { background-color: #0f172a; }
+                .bg-slate-800 { background-color: #000000; }
                 .bg-slate-50 { background-color: #f8fafc; }
                 
                 .bg-ai-mesh {
-                    background-image: radial-gradient(circle at 2px 2px, rgba(37, 99, 235, 0.05) 1px, transparent 0);
+                    background-image: radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.05) 1px, transparent 0);
                     background-size: 32px 32px;
                 }
                 
                 .chat-bubble { max-width: 85%; transition: all 0.2s ease; }
-                .user-bubble { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important; }
+                .user-bubble { background: linear-gradient(135deg, #000000 0%, #333333 100%) !important; }
                 .ai-bubble-light { background-color: #ffffff; border: 1px solid rgba(0,0,0,0.05) !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important; }
                 .border-light-darker { border-color: #e2e8f0 !important; }
                 .rounded-tr-none { border-top-right-radius: 0 !important; }
@@ -260,18 +260,18 @@ const StudentAssistant = () => {
                 }
                 .btn-icon-glass:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); }
                 
-                .glass-button:hover { background: rgba(37, 99, 235, 0.05); transform: translateY(-2px); }
+                .glass-button:hover { background: rgba(0, 0, 0, 0.05); transform: translateY(-2px); }
                 
                 .pulse-green { animation: pulseGreen 2s infinite; }
                 @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
                 
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(37, 99, 235, 0.1); border-radius: 10px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(37, 99, 235, 0.2); }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.2); }
                 
-                .focus-primary:focus { border-color: #2563eb !important; background: ${darkMode ? '#1e293b' : '#fff'} !important; }
-                .ai-neon-glow { filter: drop-shadow(0 0 15px rgba(37, 99, 235, 0.4)); }
+                .focus-primary:focus { border-color: #000000 !important; background: ${darkMode ? '#1e293b' : '#fff'} !important; }
+                .ai-neon-glow { filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.4)); }
                 
                 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
                 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
@@ -281,3 +281,4 @@ const StudentAssistant = () => {
 };
 
 export default StudentAssistant;
+

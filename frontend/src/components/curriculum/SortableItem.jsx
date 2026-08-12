@@ -31,13 +31,13 @@ export const SortableItem = ({ id, content, onEdit, onDelete, index, extraAction
             <div {...attributes} {...listeners} className="me-3 text-muted cursor-grab hover-primary">
                 <FaGripLines size={14} />
             </div>
-            <div className="flex-grow-1 min-width-0">
+            <div className="flex-grow-1 min-width-0 overflow-hidden">
                 <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill fw-bold" style={{ fontSize: '0.65rem' }}>MOD {index}</span>
+                    <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill fw-bold flex-shrink-0" style={{ fontSize: '0.65rem' }}>MOD {index}</span>
                     <span className={`fw-bold text-truncate ${darkMode ? 'text-white' : 'text-dark'}`} style={{ fontSize: '0.9rem' }}>{content}</span>
                 </div>
             </div>
-            <div className="d-flex align-items-center gap-1 ms-3">
+            <div className="d-flex align-items-center gap-1 ms-3 flex-shrink-0">
                 {extraAction}
                 {onEdit && (
                     <button className="btn btn-icon-sm btn-light border rounded-circle" onClick={(e) => { e.stopPropagation(); onEdit(id); }}>

@@ -168,9 +168,9 @@ const Register = () => {
 
             <style>{`
                 .hover-white:hover { color: white !important; }
-                .hover-primary:hover { color: #6366f1 !important; }
+                .hover-primary:hover { color: #2d2d2d !important; }
                 .login-container {
-                    background: #0f172a;
+                    background: #000000;
                     overflow: hidden;
                     position: relative;
                 }
@@ -186,3 +186,4 @@ const Register = () => {
 };
 
 export default Register;
+

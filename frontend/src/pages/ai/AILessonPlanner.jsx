@@ -231,7 +231,7 @@ const AILessonPlanner = () => {
                                             <FaRobot size={60} className="text-muted opacity-25" />
                                         </div>
                                         <h4 className="text-muted fw-bold">Neural Engine Ready</h4>
-                                        <p className="text-muted w-75 small">Configure your lesson parameters on the left and click 'Generate' to create a comprehensive academic roadmap powered by CCMS AI.</p>
+                                        <p className="text-muted w-75 small">Configure your lesson parameters on the left and click 'Generate' to create a comprehensive academic roadmap powered by CurveIQ AI.</p>
                                     </div>
                                 )}
                             </AnimatePresence>

@@ -9,7 +9,7 @@ import {
     FaChevronRight, FaRobot, FaLightbulb, FaChartLine,
     FaUsers, FaGraduationCap, FaEdit, FaTrash, FaPlusCircle,
     FaRocket, FaMicrophone, FaHistory, FaExclamationCircle,
-    FaUserTie, FaChalkboardTeacher, FaFolderOpen
+    FaUserTie, FaChalkboardTeacher, FaFolderOpen, FaAward
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { 
@@ -42,43 +42,39 @@ const TeacherDashboard = () => {
     ];
 
     useEffect(() => {
-        fetchTeacherData();
-    }, []);
+        if (user) {
+            // INSTANT HYDRATION: Try to load from session cache first for sub-second start
+            const cachedData = sessionStorage.getItem('ccms_teacher_cache');
+            if (cachedData) {
+                setCourses(JSON.parse(cachedData));
+                setLoading(false); // Stop spinner immediately if cache exists
+            }
+            fetchTeacherData();
+        }
+    }, [user]);
 
-    const fetchTeacherData = async () => {
+    const fetchTeacherData = async (retries = 3) => {
         try {
-            setLoading(true);
             const res = await axiosInstance.get('curriculum/courses/');
             const coursesData = res.data.results || res.data;
             
-            const enriched = await Promise.all(coursesData.map(async (course) => {
-                const modulesRes = await axiosInstance.get(`curriculum/courses/${course.id}/modules/`);
-                const modules = modulesRes.data.results || modulesRes.data;
-                
-                let total = 0; let done = 0;
-                modules.forEach(m => {
-                    if (m.topics) {
-                        m.topics.forEach(t => {
-                            total++;
-                            if (t.is_completed) done++;
-                        });
-                    }
-                });
-                
-                return {
-                    ...course,
-                    progress: total > 0 ? Math.round((done / total) * 100) : 0,
-                    topicCount: total,
-                    doneCount: done,
-                    upcoming: 'Tomorrow, 10:00 AM'
-                };
+            const enriched = coursesData.map((course) => ({
+                ...course,
+                progress: course.progress || 0,
+                upcoming: 'Tomorrow, 10:00 AM'
             }));
 
             setCourses(enriched);
+            // Save to cache for the next refresh
+            sessionStorage.setItem('ccms_teacher_cache', JSON.stringify(enriched));
             setLoading(false);
         } catch (err) {
-            toast.error('Failed to load dashboard statistics');
-            setLoading(false);
+            if (retries > 0) {
+                // SILENT BACKGROUND RETRY
+                setTimeout(() => fetchTeacherData(retries - 1), 2000);
+            } else {
+                setLoading(false); // Fallback to whatever data we have
+            }
         }
     };
 
@@ -140,7 +136,7 @@ const TeacherDashboard = () => {
                 <div className="row align-items-center position-relative z-1">
                     <div className="col-lg-8">
                         <motion.div variants={itemVariants} className="d-inline-flex align-items-center bg-white bg-opacity-20 rounded-pill px-3 py-1 mb-3 border border-white border-opacity-25 shadow-sm">
-                            <FaRobot className="me-2 text-white" size={10} /> <span className="small fw-bold uppercase letter-spacing-1 text-white" style={{ fontSize: '0.6rem' }}>Academic Intelligence Active</span>
+                            <FaAward className="me-2 text-warning" size={10} /> <span className="small fw-bold uppercase letter-spacing-1 text-white" style={{ fontSize: '0.6rem' }}>{user?.institution_name || 'Academic Intelligence Active'}</span>
                         </motion.div>
                         <motion.h2 className="fw-bold mb-1 display-title text-white" variants={itemVariants}>
                             Welcome back, Prof. {user?.username} ✨
@@ -192,11 +188,11 @@ const TeacherDashboard = () => {
             {/* 2. KPI Statistic Cards */}
             <div className="row g-3 mb-4">
                 {[
-                    { label: 'Assigned Courses', val: courses.length, icon: <FaBook />, color: '#2563eb', trend: '+1', path: '/curriculum' },
-                    { label: 'Total Students', val: totalStudents, icon: <FaUsers />, color: '#7c3aed', trend: 'Live', path: '/students' },
-                    { label: 'Cloud Resources', val: '24', icon: <FaFolderOpen />, color: '#6366f1', trend: 'Secure', path: '/resources' },
+                    { label: 'Assigned Courses', val: courses.length, icon: <FaBook />, color: '#000000', trend: '+1', path: '/curriculum' },
+                    { label: 'Total Students', val: totalStudents, icon: <FaUsers />, color: '#1a1a1a', trend: 'Live', path: '/students' },
+                    { label: 'Cloud Resources', val: '24', icon: <FaFolderOpen />, color: '#2d2d2d', trend: 'Secure', path: '/resources' },
                     { label: 'Assignments', val: '12', icon: <FaFileAlt />, color: '#f59e0b', trend: '-3', path: '/assignments' },
-                    { label: 'Attendance', val: '94%', icon: <FaUserTie />, color: '#3b82f6', trend: 'Stable', path: '/attendance' },
+                    { label: 'Attendance', val: '94%', icon: <FaUserTie />, color: '#1a1a1a', trend: 'Stable', path: '/attendance' },
                     { label: 'Live Classes', val: '3', icon: <FaClock />, color: '#ec4899', trend: 'Active', path: '/schedule' },
                 ].map((s, i) => (
                     <motion.div key={i} className="col-6 col-md-4 col-xl-2" variants={itemVariants}>
@@ -234,15 +230,15 @@ const TeacherDashboard = () => {
                                 <AreaChart data={studentEngagementData}>
                                     <defs>
                                         <linearGradient id="colorEngagement" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
-                                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="#000000" stopOpacity={0.1}/>
+                                            <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#f1f5f9'} />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
                                     <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: darkMode ? '#1e293b' : '#fff' }} />
-                                    <Area type="monotone" dataKey="engagement" stroke="#2563eb" strokeWidth={4} fillOpacity={1} fill="url(#colorEngagement)" />
+                                    <Area type="monotone" dataKey="engagement" stroke="#000000" strokeWidth={4} fillOpacity={1} fill="url(#colorEngagement)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -260,10 +256,10 @@ const TeacherDashboard = () => {
                         </div>
                         <div className="d-grid gap-3">
                             {[
-                                { title: 'AI Lesson Planner', desc: 'Gen auto lesson notes', icon: <FaBrain />, color: '#6366f1' },
-                                { title: 'Quiz Generator', desc: 'Auto assessment tool', icon: <FaFileAlt />, color: '#a855f7' },
+                                { title: 'AI Lesson Planner', desc: 'Gen auto lesson notes', icon: <FaBrain />, color: '#2d2d2d' },
+                                { title: 'Quiz Generator', desc: 'Auto assessment tool', icon: <FaFileAlt />, color: '#333333' },
                                 { title: 'Bloom Analyzer', desc: 'Curriculum depth check', icon: <FaChartLine />, color: '#ec4899' },
-                                { title: 'PPT Generator', desc: 'Gen slide decks', icon: <FaRocket />, color: '#3b82f6' },
+                                { title: 'PPT Generator', desc: 'Gen slide decks', icon: <FaRocket />, color: '#1a1a1a' },
                             ].map((tool, i) => (
                                 <button 
                                     key={i} 
@@ -439,7 +435,7 @@ const TeacherDashboard = () => {
 
             <style>{`
                 .glass-card { background: ${darkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.7)'} !important; }
-                .bg-purple { color: #a855f7 !important; }
+                .bg-purple { color: #333333 !important; }
                 [data-bs-theme='dark'] .text-dark { color: #f8fafc !important; }
                 [data-bs-theme='dark'] .bg-light { background-color: rgba(255,255,255,0.05) !important; }
                 .hover-lift:hover { transform: translateY(-4px); }
@@ -449,3 +445,4 @@ const TeacherDashboard = () => {
 };
 
 export default TeacherDashboard;
+

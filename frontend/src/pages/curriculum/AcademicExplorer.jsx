@@ -389,11 +389,23 @@ const AcademicExplorer = () => {
                                         <div className="mb-4">
                                             <div className="d-flex justify-content-between align-items-center mb-2">
                                                 <span className="text-muted smaller fw-bold uppercase letter-spacing-1">Syllabus Progress</span>
-                                                <span className="text-primary fw-bold smaller">85%</span>
+                                                <span className="text-primary fw-bold smaller">{course.progress || 0}%</span>
                                             </div>
                                             <div className="progress rounded-pill bg-black bg-opacity-5" style={{ height: '6px' }}>
-                                                <div className="progress-bar bg-primary" style={{ width: '85%' }}></div>
+                                                <div className="progress-bar bg-primary" style={{ width: `${course.progress || 0}%` }}></div>
                                             </div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <button 
+                                                className="btn btn-outline-primary btn-sm rounded-pill w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                                                onClick={() => {
+                                                    localStorage.setItem('selectedCourse', course.id);
+                                                    navigate('/courses');
+                                                }}
+                                            >
+                                                View Curriculum <FaArrowRight size={10} />
+                                            </button>
                                         </div>
 
                                         <div className="row g-2 pt-3 border-top border-light border-opacity-50 mt-auto">
@@ -437,7 +449,7 @@ const AcademicExplorer = () => {
 
             <style>{`
                 .cursor-pointer { cursor: pointer; }
-                .shadow-primary-glow { box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); }
+                .shadow-primary-glow { box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }
                 .letter-spacing-1 { letter-spacing: 1px; }
                 .hover-lift:hover { transform: translateY(-5px); transition: transform 0.2s; }
                 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -448,3 +460,4 @@ const AcademicExplorer = () => {
 };
 
 export default AcademicExplorer;
+

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeContext, ThemeProvider } from './context/ThemeContext';
 import { ToastContainer } from 'react-toastify';
 import MainLayout from './components/layout/MainLayout';
 import ProtectedRoute from './components/routing/ProtectedRoute';
@@ -33,6 +33,11 @@ import AttendancePage from './pages/attendance/AttendancePage';
 import ReportsPage from './pages/reports/ReportsPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
+
+const AppToasts = () => {
+  const { darkMode } = useContext(ThemeContext);
+  return <ToastContainer position="bottom-right" theme={darkMode ? 'dark' : 'light'} />;
+};
 
 function App() {
   return (
@@ -82,7 +87,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/unauthorized" element={<div className="text-center mt-5"><h1>403 - Unauthorized</h1></div>} />
         </Routes>
-        <ToastContainer position="bottom-right" />
+        <AppToasts />
         </BrowserRouter>
       </ThemeProvider>
     </AuthProvider>

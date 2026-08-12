@@ -48,9 +48,9 @@ const TeachersPage = () => {
     ];
 
     const stats = [
-        { label: 'Total Faculty', value: teachers.length, trend: 'Stable', color: '#7c3aed', icon: <FaChalkboardTeacher /> },
+        { label: 'Total Faculty', value: teachers.length, trend: 'Stable', color: '#1a1a1a', icon: <FaChalkboardTeacher /> },
         { label: 'Active Faculty', value: teachers.filter(t => t.is_approved).length, trend: '+2', color: '#10b981', icon: <FaCheckCircle /> },
-        { label: 'Avg Workload', value: '74%', trend: '+5%', color: '#2563eb', icon: <FaBriefcase /> },
+        { label: 'Avg Workload', value: '74%', trend: '+5%', color: '#000000', icon: <FaBriefcase /> },
         { label: 'AI Alerts', value: '2', trend: 'Critical', color: '#ef4444', icon: <FaRobot /> }
     ];
 
@@ -160,8 +160,8 @@ const TeachersPage = () => {
                                     <Bar dataKey="workload" fill="url(#workloadGradient)" radius={[0, 4, 4, 0]} />
                                     <defs>
                                         <linearGradient id="workloadGradient" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#7c3aed" />
-                                            <stop offset="100%" stopColor="#06b6d4" />
+                                            <stop offset="0%" stopColor="#1a1a1a" />
+                                            <stop offset="100%" stopColor="#333333" />
                                         </linearGradient>
                                     </defs>
                                 </BarChart>
@@ -234,8 +234,8 @@ const TeachersPage = () => {
             </AnimatePresence>
 
             <style>{`
-                .bg-ai-gradient { background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%); }
-                .text-ai-accent { color: #7c3aed; }
+                .bg-ai-gradient { background: linear-gradient(90deg, #1a1a1a 0%, #333333 100%); }
+                .text-ai-accent { color: #1a1a1a; }
                 .z-2000 { z-index: 2000; }
                 .z-2001 { z-index: 2001; }
             `}</style>
@@ -244,3 +244,4 @@ const TeachersPage = () => {
 };
 
 export default TeachersPage;
+

@@ -109,25 +109,27 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class CourseListSerializer(serializers.ModelSerializer):
-    module_count = serializers.SerializerMethodField()
-    teacher_count = serializers.SerializerMethodField()
-    student_count = serializers.SerializerMethodField()
+    module_count = serializers.IntegerField(source='module_count_annotated', read_only=True)
+    teacher_count = serializers.IntegerField(source='teacher_count_annotated', read_only=True)
+    student_count = serializers.IntegerField(source='student_count_annotated', read_only=True)
+    progress = serializers.SerializerMethodField()
+    topic_count = serializers.IntegerField(source='total_topics_count', read_only=True)
+    completed_topic_count = serializers.IntegerField(source='completed_topics_count', read_only=True)
 
     class Meta:
         model = Course
         fields = [
             'id', 'name', 'code', 'credits', 'semester', 'order', 
-            'is_active', 'module_count', 'teacher_count', 'student_count'
+            'is_active', 'module_count', 'teacher_count', 'student_count', 
+            'progress', 'topic_count', 'completed_topic_count'
         ]
 
-    def get_module_count(self, obj):
-        return obj.modules.count()
-
-    def get_teacher_count(self, obj):
-        return obj.teachers.count()
-
-    def get_student_count(self, obj):
-        return obj.students.count()
+    def get_progress(self, obj):
+        # Use the annotated field if available (it will be for list views)
+        # otherwise fallback to property (for single detail views)
+        if hasattr(obj, 'progress_annotated'):
+            return round(obj.progress_annotated) if obj.progress_annotated is not None else 0
+        return obj.progress_percentage
 
 
 class CurriculumSerializer(serializers.ModelSerializer):

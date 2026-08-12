@@ -105,11 +105,19 @@ const Navbar = ({ isCollapsed }) => {
             <div className="container-fluid p-0 d-flex align-items-center">
                 {/* Project Name (Replaces wide search bar) */}
                 <div className="d-flex align-items-center gap-2">
-                    <div className="bg-primary rounded-3 p-1 shadow-primary-glow d-flex align-items-center justify-content-center" style={{ width: isCollapsed ? '38px' : '34px', height: isCollapsed ? '38px' : '34px', transition: 'all 0.3s ease' }}>
-                        <FaUniversity className="text-white" size={isCollapsed ? 18 : 16} />
-                    </div>
-                    <span className={`fw-bold ${isCollapsed ? 'fs-4' : 'fs-5'} ${darkMode ? 'text-white' : 'text-dark'} transition-all`} style={{ letterSpacing: isCollapsed ? '-0.5px' : '-0.2px', transition: 'all 0.3s ease' }}>
-                        Centralized <span className="text-primary">Curriculum Management Portal</span>
+                    <img 
+                        src="/curveiq_logo.png" 
+                        alt="CurveIQ Logo" 
+                        className="rounded-3 shadow-sm" 
+                        style={{ 
+                            width: isCollapsed ? '110px' : '100px', 
+                            height: isCollapsed ? '74px' : '67px', 
+                            objectFit: 'contain', 
+                            transition: 'all 0.3s ease'
+                        }}
+                    />
+                    <span className={`fw-bold ${isCollapsed ? 'fs-3' : 'fs-4'} ${darkMode ? 'text-white' : 'text-dark'} transition-all`} style={{ letterSpacing: isCollapsed ? '-0.5px' : '-0.2px', transition: 'all 0.3s ease' }}>
+                        Curve<span className="text-primary">IQ</span> <span className="text-muted d-none d-md-inline" style={{ fontWeight: 500, fontSize: '0.95rem', marginLeft: '8px' }}>| Curriculum Intelligence</span>
                     </span>
                     <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 rounded-pill ms-2 d-none d-xl-inline-block" style={{ fontSize: isCollapsed ? '0.75rem' : '0.65rem' }}>v2.0</span>
                 </div>

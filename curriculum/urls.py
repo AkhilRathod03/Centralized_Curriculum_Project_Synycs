@@ -38,7 +38,7 @@ urlpatterns = [
 
     # Schedules
     path('schedules/', views.ScheduleListCreateView.as_view()),
-    path('schedules/export/', views.StudentScheduleExportView.as_view()),
+    path('schedules/export/', views.AcademicScheduleExportView.as_view()),
     path('schedules/<int:pk>/', views.ScheduleDetailView.as_view()),
 
     # Reorder (drag and drop)

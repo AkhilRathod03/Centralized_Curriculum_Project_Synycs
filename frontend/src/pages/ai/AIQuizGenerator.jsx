@@ -214,11 +214,11 @@ const AIQuizGenerator = () => {
             </motion.div>
 
             <style>{`
-                .pulse-dot { width: 10px; height: 10px; background: #2563eb; border-radius: 50%; box-shadow: 0 0 0 rgba(37, 99, 235, 0.4); animation: pulse 2s infinite; }
-                @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
+                .pulse-dot { width: 10px; height: 10px; background: #000000; border-radius: 50%; box-shadow: 0 0 0 rgba(0, 0, 0, 0.4); animation: pulse 2s infinite; }
+                @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); } }
                 .ai-loader-container { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
-                .ai-loader-ring { position: absolute; width: 100%; height: 100%; border: 4px solid rgba(37, 99, 235, 0.1); border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite; }
-                .ai-loader-icon { font-size: 40px; color: #2563eb; animation: heartbeat 1.5s ease-in-out infinite; }
+                .ai-loader-ring { position: absolute; width: 100%; height: 100%; border: 4px solid rgba(0, 0, 0, 0.1); border-top-color: #000000; border-radius: 50%; animation: spin 1s linear infinite; }
+                .ai-loader-icon { font-size: 40px; color: #000000; animation: heartbeat 1.5s ease-in-out infinite; }
                 @keyframes spin { to { transform: rotate(360deg); } }
                 @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -229,3 +229,4 @@ const AIQuizGenerator = () => {
 };
 
 export default AIQuizGenerator;
+

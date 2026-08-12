@@ -29,7 +29,7 @@ const TeacherStudents = () => {
 
     const distributionData = [
         { name: 'A Grade', value: 15, color: '#10b981' },
-        { name: 'B Grade', value: 25, color: '#2563eb' },
+        { name: 'B Grade', value: 25, color: '#000000' },
         { name: 'C Grade', value: 10, color: '#f59e0b' },
         { name: 'Risk', value: 5, color: '#ef4444' },
     ];
@@ -53,10 +53,10 @@ const TeacherStudents = () => {
     };
 
     const stats = [
-        { label: 'Total Enrolled', value: '83', icon: <FaUsers />, color: '#2563eb' },
+        { label: 'Total Enrolled', value: '83', icon: <FaUsers />, color: '#000000' },
         { label: 'Class Avg GPA', value: '7.8', icon: <FaChartLine />, color: '#10b981' },
         { label: 'Weak Students', value: '6', icon: <FaExclamationCircle />, color: '#ef4444' },
-        { label: 'Attendance %', value: '88%', icon: <FaCheckCircle />, color: '#06b6d4' }
+        { label: 'Attendance %', value: '88%', icon: <FaCheckCircle />, color: '#333333' }
     ];
 
     return (
@@ -182,10 +182,10 @@ const TeacherStudents = () => {
             </div>
 
             <style>{`
-                .btn-light-ai { background: #7c3aed15; color: #7c3aed; border: 1px solid #7c3aed20; }
-                .btn-light-ai:hover { background: #7c3aed25; }
-                .bg-ai-gradient { background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%); }
-                .text-ai-accent { color: #7c3aed; }
+                .btn-light-ai { background: #1a1a1a15; color: #1a1a1a; border: 1px solid #1a1a1a20; }
+                .btn-light-ai:hover { background: #1a1a1a25; }
+                .bg-ai-gradient { background: linear-gradient(90deg, #1a1a1a 0%, #333333 100%); }
+                .text-ai-accent { color: #1a1a1a; }
                 .uppercase { text-transform: uppercase; }
                 .letter-spacing-1 { letter-spacing: 1px; }
             `}</style>
@@ -194,3 +194,4 @@ const TeacherStudents = () => {
 };
 
 export default TeacherStudents;
+

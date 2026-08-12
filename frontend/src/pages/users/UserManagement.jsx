@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
+import { AuthContext } from '../../context/AuthContext';
 import { 
     FaUserPlus, FaSearch, FaTrash, FaEdit, FaUserShield, FaChalkboardTeacher, 
     FaUserGraduate, FaFilter, FaFileExport, FaCheckCircle, FaTimesCircle, 
@@ -15,6 +16,7 @@ import EmptyState from '../../components/common/EmptyState';
 
 const UserManagement = () => {
     const { darkMode } = useContext(ThemeContext);
+    const { user: currentUser } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('all');
@@ -56,6 +58,9 @@ const UserManagement = () => {
     };
 
     const filteredUsers = users.filter(u => {
+        // Hide the current admin (the system authorizer) from the management list
+        if (u.username === currentUser?.username) return false;
+
         const matchesTab = activeTab === 'all' || u.role === activeTab;
         const matchesSearch = u.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               u.email?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -89,7 +94,7 @@ const UserManagement = () => {
             <div className="row g-4 mb-4">
                 {/* Stats Summary */}
                 {[
-                    { label: 'Total Entities', count: users.length, icon: <FaUserShield />, color: '#2563eb' },
+                    { label: 'Total Entities', count: users.length, icon: <FaUserShield />, color: '#000000' },
                     { label: 'Approved', count: users.filter(u => u.is_approved).length, icon: <FaCheckCircle />, color: '#10b981' },
                     { label: 'Pending Audit', count: users.filter(u => !u.is_approved).length, icon: <FaClock />, color: '#f59e0b' }
                 ].map((stat, i) => (
@@ -251,3 +256,4 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
+

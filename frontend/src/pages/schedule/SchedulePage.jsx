@@ -27,7 +27,7 @@ const SchedulePage = () => {
     
     const [isGenerating, setIsGenerating] = useState(false);
     const [events, setEvents] = useState([
-        { id: '1', title: 'Data Structures (CS-201)', start: '2026-05-18T10:00:00', end: '2026-05-18T11:30:00', backgroundColor: '#2563eb' },
+        { id: '1', title: 'Data Structures (CS-201)', start: '2026-05-18T10:00:00', end: '2026-05-18T11:30:00', backgroundColor: '#000000' },
         { id: '2', title: 'Algorithms Lab', start: '2026-05-18T14:00:00', end: '2026-05-18T16:00:00', backgroundColor: '#10b981' },
         { id: '3', title: 'Database Systems', start: '2026-05-19T09:00:00', end: '2026-05-19T10:30:00', backgroundColor: '#8b5cf6' },
         { id: '4', title: 'Faculty Meeting', start: '2026-05-19T15:00:00', end: '2026-05-19T16:00:00', backgroundColor: '#f59e0b' },
@@ -40,13 +40,13 @@ const SchedulePage = () => {
     });
 
     const [allocationPool, setAllocationPool] = useState([
-        { title: 'Operating Systems', color: '#2563eb' },
-        { title: 'Neural Networks', color: '#7c3aed' },
-        { title: 'Quantum Computing', color: '#06b6d4' }
+        { title: 'Operating Systems', color: '#000000' },
+        { title: 'Neural Networks', color: '#1a1a1a' },
+        { title: 'Quantum Computing', color: '#333333' }
     ]);
 
     const [showAddSubjectModal, setShowAddSubjectModal] = useState(false);
-    const [newSubject, setNewSubject] = useState({ title: '', color: '#2563eb' });
+    const [newSubject, setNewSubject] = useState({ title: '', color: '#000000' });
 
     useEffect(() => {
         if (!isStudent) {
@@ -57,7 +57,7 @@ const SchedulePage = () => {
                     eventData: function(eventEl) {
                         return {
                             title: eventEl.innerText,
-                            backgroundColor: eventEl.dataset.color || '#2563eb',
+                            backgroundColor: eventEl.dataset.color || '#000000',
                             duration: '01:30'
                         };
                     }
@@ -70,7 +70,7 @@ const SchedulePage = () => {
         e.preventDefault();
         if (!newSubject.title) return toast.error("Subject title required");
         setAllocationPool([...allocationPool, newSubject]);
-        setNewSubject({ title: '', color: '#2563eb' });
+        setNewSubject({ title: '', color: '#000000' });
         setShowAddSubjectModal(false);
         toast.success(`${newSubject.title} added to allocation node.`);
     };
@@ -81,8 +81,8 @@ const SchedulePage = () => {
         setTimeout(() => {
             const aiEvents = [
                 ...events,
-                { id: '5', title: 'AI: Machine Learning', start: '2026-05-20T10:00:00', end: '2026-05-20T11:30:00', backgroundColor: '#a855f7' },
-                { id: '6', title: 'AI: Deep Learning Lab', start: '2026-05-20T13:30:00', end: '2026-05-20T16:30:00', backgroundColor: '#06b6d4' },
+                { id: '5', title: 'AI: Machine Learning', start: '2026-05-20T10:00:00', end: '2026-05-20T11:30:00', backgroundColor: '#333333' },
+                { id: '6', title: 'AI: Deep Learning Lab', start: '2026-05-20T13:30:00', end: '2026-05-20T16:30:00', backgroundColor: '#333333' },
             ];
             setEvents(aiEvents);
             setIsGenerating(false);
@@ -264,7 +264,7 @@ const SchedulePage = () => {
                                         <div className="mb-4">
                                             <label className="form-label smaller fw-bold text-muted uppercase">Allocation Color</label>
                                             <div className="d-flex gap-3">
-                                                {['#2563eb', '#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'].map(c => (
+                                                {['#000000', '#1a1a1a', '#333333', '#10b981', '#f59e0b', '#ef4444'].map(c => (
                                                     <div 
                                                         key={c} 
                                                         className={`rounded-circle cursor-pointer border-3 ${newSubject.color === c ? 'border-dark' : 'border-white'}`}
@@ -314,3 +314,4 @@ const SchedulePage = () => {
 };
 
 export default SchedulePage;
+

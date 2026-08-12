@@ -54,6 +54,17 @@ class Course(models.Model):
     def __str__(self):
         return f"{self.program.code} | {self.name}"
 
+    @property
+    def progress_percentage(self):
+        """Calculates the overall progress of the course based on completed topics."""
+        # Get all topics for this course via modules
+        all_topics = Topic.objects.filter(module__course=self)
+        total = all_topics.count()
+        if total == 0:
+            return 0
+        done = all_topics.filter(is_completed=True).count()
+        return round((done / total) * 100) if total > 0 else 0
+
 
 class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')

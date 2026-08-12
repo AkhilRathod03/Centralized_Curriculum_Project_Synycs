@@ -42,9 +42,9 @@ const Programs = () => {
 
     // Mock analytics data
     const deptDistribution = [
-        { name: 'Computer Science', value: 45, color: '#2563eb' },
+        { name: 'Computer Science', value: 45, color: '#000000' },
         { name: 'Mechanical', value: 25, color: '#10b981' },
-        { name: 'Business', value: 20, color: '#7c3aed' },
+        { name: 'Business', value: 20, color: '#1a1a1a' },
         { name: 'Arts', value: 10, color: '#f59e0b' },
     ];
 
@@ -151,10 +151,10 @@ const Programs = () => {
             {/* 1. Program KPI Cards */}
             <div className="row g-3 mb-4">
                 {[
-                    { label: 'Total Programs', val: stats.totalPrograms, icon: <FaLayerGroup />, color: '#2563eb', trend: '+2' },
-                    { label: 'Active Depts', val: stats.activeDepts, icon: <FaUniversity />, color: '#7c3aed', trend: 'Stable' },
+                    { label: 'Total Programs', val: stats.totalPrograms, icon: <FaLayerGroup />, color: '#000000', trend: '+2' },
+                    { label: 'Active Depts', val: stats.activeDepts, icon: <FaUniversity />, color: '#1a1a1a', trend: 'Stable' },
                     { label: 'Courses Linked', val: stats.coursesLinked, icon: <FaBook />, color: '#10b981', trend: '+14' },
-                    { label: 'Completion', val: `${stats.curriculumCompletion}%`, icon: <FaCheckCircle />, color: '#06b6d4', trend: '+4.2%' },
+                    { label: 'Completion', val: `${stats.curriculumCompletion}%`, icon: <FaCheckCircle />, color: '#333333', trend: '+4.2%' },
                     { label: 'AI Warnings', val: stats.aiWarnings, icon: <FaExclamationTriangle />, color: '#f59e0b', trend: '-2' },
                     { label: 'Accreditation', val: stats.accreditationStatus, icon: <FaShieldAlt />, color: '#ef4444', trend: 'Audit Ready' },
                 ].map((s, i) => (
@@ -377,15 +377,15 @@ const Programs = () => {
                                         <AreaChart data={growthData}>
                                             <defs>
                                                 <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15}/>
-                                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                                                    <stop offset="5%" stopColor="#000000" stopOpacity={0.15}/>
+                                                    <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
                                                 </linearGradient>
                                             </defs>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#e2e8f0'} />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                                             <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: 'var(--card-shadow)', backgroundColor: darkMode ? '#1e293b' : '#fff' }} />
-                                            <Area type="monotone" dataKey="enrollment" stroke="#2563eb" strokeWidth={4} fillOpacity={1} fill="url(#colorGrowth)" />
+                                            <Area type="monotone" dataKey="enrollment" stroke="#000000" strokeWidth={4} fillOpacity={1} fill="url(#colorGrowth)" />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -553,8 +553,8 @@ const Programs = () => {
             </AnimatePresence>
 
             <style>{`
-                .text-ai-accent { color: #7c3aed !important; }
-                .shadow-primary-glow { box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); }
+                .text-ai-accent { color: #1a1a1a !important; }
+                .shadow-primary-glow { box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }
                 .letter-spacing-1 { letter-spacing: 1px; }
                 .hover-lift:hover { transform: translateY(-4px); }
                 .ai-shimmer { background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.1), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
@@ -569,3 +569,4 @@ const Programs = () => {
 };
 
 export default Programs;
+

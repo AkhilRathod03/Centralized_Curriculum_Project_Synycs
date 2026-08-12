@@ -37,9 +37,9 @@ const Register = () => {
     const navigate = useNavigate();
 
     const roleConfig = {
-        admin: { color: '#2563eb', label: 'Admin', icon: <FaShieldAlt />, glow: 'rgba(37, 99, 235, 0.4)' },
-        teacher: { color: '#7c3aed', label: 'Teacher', icon: <FaChalkboardTeacher />, glow: 'rgba(124, 58, 237, 0.4)' },
-        student: { color: '#06b6d4', label: 'Student', icon: <FaUserGraduate />, glow: 'rgba(6, 182, 212, 0.4)' }
+        admin: { color: '#000000', label: 'Admin', icon: <FaShieldAlt />, glow: 'rgba(0, 0, 0, 0.4)' },
+        teacher: { color: '#1a1a1a', label: 'Teacher', icon: <FaChalkboardTeacher />, glow: 'rgba(124, 58, 237, 0.4)' },
+        student: { color: '#333333', label: 'Student', icon: <FaUserGraduate />, glow: 'rgba(6, 182, 212, 0.4)' }
     };
 
     useEffect(() => {
@@ -94,10 +94,24 @@ const Register = () => {
 
         try {
             await axiosInstance.post('auth/register/', payload);
-            toast.success('Registration successful! Please login.');
+            toast.success('Registration successful! Access identity established.');
             navigate('/login');
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Registration failed');
+            console.error("Registration error:", err.response?.data);
+            const data = err.response?.data;
+            if (data) {
+                if (data.role) {
+                    toast.error(Array.isArray(data.role) ? data.role[0] : data.role);
+                } else if (data.email) {
+                    toast.error(Array.isArray(data.email) ? data.email[0] : data.email);
+                } else if (data.detail) {
+                    toast.error(data.detail);
+                } else {
+                    toast.error('Registration failed. Please check your inputs.');
+                }
+            } else {
+                toast.error('Network error during registration.');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -146,7 +160,7 @@ const Register = () => {
                         style={{ maxWidth: '580px', padding: '2rem' }}
                     >
                         <div className="text-center mb-4">
-                            <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#0f172a' }}>Identity Registration</h2>
+                            <h2 className="fw-900 mb-1 tracking-tight" style={{ color: '#000000' }}>Identity Registration</h2>
                             <p className="text-white opacity-40 smaller fw-600 uppercase tracking-widest">Security Protocol Required</p>
                         </div>
 
@@ -180,7 +194,7 @@ const Register = () => {
                                             style={{ 
                                                 zIndex: 1, 
                                                 transition: 'all 0.3s ease',
-                                                color: formData.role === key ? '#ffffff' : '#0f172a',
+                                                color: formData.role === key ? '#ffffff' : '#000000',
                                                 opacity: formData.role === key ? 1 : 0.8
                                             }}
                                         >
@@ -190,6 +204,13 @@ const Register = () => {
                                     </button>
                                 ))}
                             </div>
+                            {formData.role === 'admin' && (
+                                <div className="mt-2 text-center">
+                                    <span className="badge bg-dark text-white p-2 rounded-pill smaller fw-bold" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>
+                                        <FaCheckCircle className="me-1" /> PRIMARY ADMIN: AUTO-APPROVED & EXCLUSIVE
+                                    </span>
+                                </div>
+                            )}
                         </div>
 
                         <form onSubmit={handleSubmit}>
@@ -336,3 +357,4 @@ const Register = () => {
 };
 
 export default Register;
+

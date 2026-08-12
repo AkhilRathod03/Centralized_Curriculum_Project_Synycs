@@ -11,7 +11,36 @@ const StudentAssignments = () => {
     const [showSubmitModal, setShowSubmitModal] = useState(false);
     const [showQuiz, setShowQuiz] = useState(false);
     const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [selectedOptions, setSelectedOptions] = useState({});
     const [quizSubmitted, setQuizSubmitted] = useState(false);
+
+    const mockQuizQuestions = [
+        {
+            question: "What is the time complexity of BFS on a graph with V vertices and E edges?",
+            options: ["O(V)", "O(E)", "O(V + E)", "O(V * E)"],
+            answer: 2
+        },
+        {
+            question: "Which data structure is typically used to implement BFS?",
+            options: ["Stack", "Queue", "Priority Queue", "Linked List"],
+            answer: 1
+        },
+        {
+            question: "In React, which hook is used to memoize expensive computations?",
+            options: ["useEffect", "useCallback", "useMemo", "useRef"],
+            answer: 2
+        },
+        {
+            question: "What is the primary purpose of normalization in databases?",
+            options: ["Increase redundancy", "Reduce data integrity", "Minimize data duplication", "Improve query speed only"],
+            answer: 2
+        },
+        {
+            question: "Which principle is NOT a core part of ACID properties?",
+            options: ["Atomicity", "Consistency", "Isolation", "Durability", "Availability"],
+            answer: 4
+        }
+    ];
 
     const kpiData = [
         { title: 'Pending Assignments', value: '3', icon: <FaClock />, trend: 'Due soon', color: 'warning' },
@@ -59,6 +88,13 @@ const StudentAssignments = () => {
         },
     ];
 
+    const handleOptionSelect = (optionIndex) => {
+        setSelectedOptions({
+            ...selectedOptions,
+            [currentQuestion]: optionIndex
+        });
+    };
+
     const handleQuizSubmit = () => {
         toast.success('AI Quiz submitted successfully! AI is evaluating your answers...');
         setQuizSubmitted(true);
@@ -66,6 +102,7 @@ const StudentAssignments = () => {
             setShowQuiz(false);
             setQuizSubmitted(false);
             setCurrentQuestion(0);
+            setSelectedOptions({});
         }, 2000);
     };
 
@@ -330,18 +367,25 @@ const StudentAssignments = () => {
                                 </div>
                                 <div className="modal-body p-4">
                                     <div className="d-flex justify-content-between mb-3">
-                                        <span className="small fw-bold">Question {currentQuestion + 1} of 25</span>
+                                        <span className="small fw-bold">Question {currentQuestion + 1} of {mockQuizQuestions.length}</span>
                                         <div className="progress rounded-pill" style={{ width: '150px', height: '6px' }}>
-                                            <div className="progress-bar bg-info" style={{ width: `${((currentQuestion + 1) / 25) * 100}%` }}></div>
+                                            <div className="progress-bar bg-info" style={{ width: `${((currentQuestion + 1) / mockQuizQuestions.length) * 100}%` }}></div>
                                         </div>
                                     </div>
                                     <div className={`p-4 rounded-4 border ${darkMode ? 'bg-secondary bg-opacity-10 border-secondary' : 'bg-light border-light'} mb-4`}>
-                                        <h5 className="fw-bold mb-0">What is the primary advantage of using {selectedAssignment?.course} principles for resource management?</h5>
+                                        <h5 className="fw-bold mb-0">{mockQuizQuestions[currentQuestion].question}</h5>
                                     </div>
                                     <div className="row g-3">
-                                        {['Reduced Latency', 'High Scalability', 'Data Integrity', 'Auto-Scaling'].map((opt, i) => (
+                                        {mockQuizQuestions[currentQuestion].options.map((opt, i) => (
                                             <div key={i} className="col-md-6">
-                                                <button className={`btn w-100 p-3 rounded-4 text-start border-2 ${darkMode ? 'btn-outline-light border-opacity-10 hover:bg-info' : 'btn-outline-dark border-opacity-10 hover:bg-light'}`}>
+                                                <button 
+                                                    onClick={() => handleOptionSelect(i)}
+                                                    className={`btn w-100 p-3 rounded-4 text-start border-2 ${
+                                                        selectedOptions[currentQuestion] === i 
+                                                        ? 'btn-info text-white border-info shadow-sm' 
+                                                        : darkMode ? 'btn-outline-light border-opacity-10 hover:bg-info' : 'btn-outline-dark border-opacity-10 hover:bg-light'
+                                                    }`}
+                                                >
                                                     <span className="me-3 fw-bold">{String.fromCharCode(65 + i)}.</span> {opt}
                                                 </button>
                                             </div>
@@ -349,10 +393,22 @@ const StudentAssignments = () => {
                                     </div>
                                 </div>
                                 <div className="modal-footer border-0 p-4 pt-0 gap-2">
-                                    {currentQuestion < 24 ? (
-                                        <button onClick={() => setCurrentQuestion(prev => prev + 1)} className="btn btn-primary px-5 rounded-pill shadow-primary-glow ms-auto">Next Question</button>
+                                    {currentQuestion < mockQuizQuestions.length - 1 ? (
+                                        <button 
+                                            onClick={() => setCurrentQuestion(prev => prev + 1)} 
+                                            className="btn btn-primary px-5 rounded-pill shadow-primary-glow ms-auto"
+                                            disabled={selectedOptions[currentQuestion] === undefined}
+                                        >
+                                            Next Question
+                                        </button>
                                     ) : (
-                                        <button onClick={handleQuizSubmit} className="btn btn-success px-5 rounded-pill shadow-lg ms-auto">Submit Quiz</button>
+                                        <button 
+                                            onClick={handleQuizSubmit} 
+                                            className="btn btn-success px-5 rounded-pill shadow-lg ms-auto"
+                                            disabled={selectedOptions[currentQuestion] === undefined}
+                                        >
+                                            Submit Quiz
+                                        </button>
                                     )}
                                 </div>
                             </motion.div>

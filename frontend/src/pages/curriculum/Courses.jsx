@@ -58,9 +58,9 @@ const Courses = () => {
     ];
 
     const moduleDistribution = [
-        { name: 'Core Computing', value: 40, color: '#2563eb' },
+        { name: 'Core Computing', value: 40, color: '#000000' },
         { name: 'Mathematics', value: 20, color: '#10b981' },
-        { name: 'Professional Electives', value: 25, color: '#7c3aed' },
+        { name: 'Professional Electives', value: 25, color: '#1a1a1a' },
         { name: 'Humanities', value: 15, color: '#f59e0b' },
     ];
 
@@ -82,16 +82,16 @@ const Courses = () => {
             const res = await axiosInstance.get(url);
             const data = res.data.results || res.data;
             
-            // Enrich courses with mock metrics
+            // Enrich courses with real backend metrics
             const enriched = data.map((c, i) => ({
                 ...c,
                 programName: c.program_name || (location.state?.branchName || 'B.Tech Computer Science'),
-                semester: c.semester || Math.floor(Math.random() * 8) + 1,
+                semester: c.semester || 1,
                 credits: c.credits || 3,
-                modulesCount: Math.floor(Math.random() * 5) + 3,
-                students: Math.floor(Math.random() * 150) + 30,
+                modulesCount: c.module_count || 0,
+                students: c.student_count || 0,
                 faculty: `Prof. ${['Smith', 'Johnson', 'Williams', 'Brown'][i % 4]}`,
-                completion: Math.floor(Math.random() * 40) + 60,
+                completion: c.progress || 0,
                 aiScore: Math.floor(Math.random() * 20) + 80,
                 status: i % 5 === 0 ? 'Review Needed' : 'Active'
             }));
@@ -196,10 +196,10 @@ const Courses = () => {
             {/* 1. Course KPI Cards */}
             <div className="row g-3 mb-4">
                 {[
-                    { label: 'Total Courses', val: stats.totalCourses, icon: <FaBook />, color: '#2563eb', trend: '+5' },
+                    { label: 'Total Courses', val: stats.totalCourses, icon: <FaBook />, color: '#000000', trend: '+5' },
                     { label: 'Active Courses', val: stats.activeCourses, icon: <FaCheckCircle />, color: '#10b981', trend: 'Stable' },
-                    { label: 'Faculty Assigned', val: stats.facultyAssigned, icon: <FaChalkboardTeacher />, color: '#7c3aed', trend: '100% Covered' },
-                    { label: 'Completion Rate', val: `${stats.completionRate}%`, icon: <FaChartLine />, color: '#06b6d4', trend: '+2.1%' },
+                    { label: 'Faculty Assigned', val: stats.facultyAssigned, icon: <FaChalkboardTeacher />, color: '#1a1a1a', trend: '100% Covered' },
+                    { label: 'Completion Rate', val: `${stats.completionRate}%`, icon: <FaChartLine />, color: '#333333', trend: '+2.1%' },
                     { label: 'AI Warnings', val: stats.aiWarnings, icon: <FaExclamationTriangle />, color: '#f59e0b', trend: 'Requires Attention' },
                     { label: 'Total Enrollments', val: stats.studentEnrollment, icon: <FaUsers />, color: '#ec4899', trend: '+150' },
                 ].map((s, i) => (
@@ -504,8 +504,8 @@ const Courses = () => {
                                         <AreaChart data={enrollmentTrends}>
                                             <defs>
                                                 <linearGradient id="colorEnrollment" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15}/>
-                                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                                                    <stop offset="5%" stopColor="#000000" stopOpacity={0.15}/>
+                                                    <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
                                                 </linearGradient>
                                                 <linearGradient id="colorCompletion" x1="0" y1="0" x2="0" y2="1">
                                                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.15}/>
@@ -518,7 +518,7 @@ const Courses = () => {
                                             <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                                             <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: 'var(--card-shadow)', backgroundColor: darkMode ? '#1e293b' : '#fff' }} />
                                             <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }}/>
-                                            <Area yAxisId="left" type="monotone" name="Enrollment" dataKey="enrollment" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorEnrollment)" />
+                                            <Area yAxisId="left" type="monotone" name="Enrollment" dataKey="enrollment" stroke="#000000" strokeWidth={3} fillOpacity={1} fill="url(#colorEnrollment)" />
                                             <Area yAxisId="right" type="monotone" name="Avg Completion %" dataKey="completion" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorCompletion)" />
                                         </AreaChart>
                                     </ResponsiveContainer>
@@ -710,8 +710,8 @@ const Courses = () => {
             />
 
             <style>{`
-                .text-ai-accent { color: #7c3aed !important; }
-                .shadow-primary-glow { box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); }
+                .text-ai-accent { color: #1a1a1a !important; }
+                .shadow-primary-glow { box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }
                 .letter-spacing-1 { letter-spacing: 1px; }
                 .hover-lift:hover { transform: translateY(-4px); }
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }

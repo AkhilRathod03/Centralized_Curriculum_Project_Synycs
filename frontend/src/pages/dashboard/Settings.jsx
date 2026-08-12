@@ -254,16 +254,17 @@ const Settings = () => {
             </div>
 
             <style>{`
-                .shadow-primary-glow { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+                .shadow-primary-glow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
                 .text-xs { font-size: 0.7rem; }
                 .hover-bg-white-5:hover { background-color: rgba(255,255,255,0.05); }
                 .hover-bg-light:hover { background-color: #f8fafc; }
                 .transition-all { transition: all 0.2s ease-in-out; }
-                .form-switch .form-check-input:checked { background-color: #2563eb; border-color: #2563eb; }
-                .form-control:focus, .form-select:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+                .form-switch .form-check-input:checked { background-color: #000000; border-color: #000000; }
+                .form-control:focus, .form-select:focus { border-color: #000000; box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1); }
             `}</style>
         </div>
     );
 };
 
 export default Settings;
+

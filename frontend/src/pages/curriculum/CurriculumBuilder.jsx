@@ -288,34 +288,34 @@ const CurriculumBuilder = () => {
 
             toast.success(`'${topicName}' added.`);
             setAddedInSession(prev => new Set(prev).add(normalized));
-            setAiSuggestions(prev => ({
+            setAiSuggestions(prev => prev ? ({
                 ...prev,
                 missing_topics: prev.missing_topics.filter(t => t !== topicName)
-            }));
-            
+            }) : null);
+
             await fetchModules(selectedCourse);
-        } catch (err) {
+            } catch (err) {
             toast.error("Failed to add topic.");
             setLoading(false);
-        }
-    };
+            }
+            };
 
-    const handleAddMissingModule = async (moduleData) => {
-        const normalized = moduleData.name.toLowerCase().trim();
-        const exists = modules.some(m => m.name.toLowerCase().trim() === normalized);
-        
-        if (exists || addedInSession.has(normalized)) {
+            const handleAddMissingModule = async (moduleData) => {
+            const normalized = moduleData.name.toLowerCase().trim();
+            const exists = modules.some(m => m.name.toLowerCase().trim() === normalized);
+
+            if (exists || addedInSession.has(normalized)) {
             toast.warning(`'${moduleData.name}' already exists.`);
             return;
-        }
+            }
 
-        try {
+            try {
             setLoading(true);
             toast.info(`Standardizing: ${moduleData.name}...`);
-            
+
             const modRes = await axiosInstance.post(`curriculum/courses/${selectedCourse}/modules/`, {
                 name: moduleData.name,
-                order: modules.length 
+                order: modules.length
             });
             const newModule = modRes.data;
 
@@ -328,13 +328,12 @@ const CurriculumBuilder = () => {
 
             toast.success(`Standard Unit added.`);
             setAddedInSession(prev => new Set(prev).add(normalized));
-            setAiSuggestions(prev => ({
+            setAiSuggestions(prev => prev ? ({
                 ...prev,
                 new_modules: prev.new_modules.filter(m => m.name !== moduleData.name)
-            }));
+            }) : null);
 
-            await fetchModules(selectedCourse);
-        } catch (err) {
+            await fetchModules(selectedCourse);        } catch (err) {
             toast.error("Standardization failed.");
             setLoading(false);
         }
@@ -501,20 +500,20 @@ const CurriculumBuilder = () => {
                 id: `mod-${mod.id}`,
                 data: { label: mod.name },
                 position: { x: 250, y: idx * 100 },
-                style: { background: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '11px', fontWeight: 'bold' }
+                style: { background: '#000000', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '11px', fontWeight: 'bold' }
             });
             if (idx > 0) {
-                edges.push({ id: `e-${modules[idx-1].id}-${mod.id}`, source: `mod-${modules[idx-1].id}`, target: `mod-${mod.id}`, animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: '#2563eb' }, style: { stroke: '#2563eb', strokeWidth: 2 } });
+                edges.push({ id: `e-${modules[idx-1].id}-${mod.id}`, source: `mod-${modules[idx-1].id}`, target: `mod-${mod.id}`, animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: '#000000' }, style: { stroke: '#000000', strokeWidth: 2 } });
             }
         });
         return { nodes, edges };
     }, [modules]);
 
     const bloomData = [
-        { name: 'Remember', value: 20, color: '#3b82f6' },
+        { name: 'Remember', value: 20, color: '#1a1a1a' },
         { name: 'Understand', value: 35, color: '#10b981' },
         { name: 'Apply', value: 25, color: '#f59e0b' },
-        { name: 'Analyze', value: 10, color: '#7c3aed' },
+        { name: 'Analyze', value: 10, color: '#1a1a1a' },
         { name: 'Create', value: 10, color: '#ec4899' },
     ];
 
@@ -835,16 +834,16 @@ const CurriculumBuilder = () => {
                                                                         {expandedModules[m.id] && (
                                                                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="ms-5 ps-3 border-start border-2 border-primary border-opacity-10 mt-3">
                                                                                 {m.topics?.map(topic => (
-                                                                                    <div 
-                                                                                        key={topic.id} 
+                                                                                    <div
+                                                                                        key={topic.id}
                                                                                         className={`d-flex align-items-center p-3 rounded-4 border shadow-sm mb-2 hover-shadow-md transition-all cursor-pointer ${darkMode ? 'bg-dark bg-opacity-20 border-secondary' : 'bg-white border-light'}`}
                                                                                         onClick={() => setSelectedItem({ type: 'topic', ...topic })}
                                                                                     >
-                                                                                        <div className="flex-grow-1 min-width-0">
+                                                                                        <div className="flex-grow-1 min-width-0 overflow-hidden">
                                                                                             <span className={`small fw-bold text-truncate d-block ${darkMode ? 'text-white' : 'text-dark'}`}>{topic.name}</span>
                                                                                             <span className="text-muted smaller fw-medium"><FaClock size={10} className="me-1 opacity-50"/> {topic.duration_hours}h</span>
                                                                                         </div>
-                                                                                        <div className="d-flex gap-1 ms-3">
+                                                                                        <div className="d-flex gap-1 ms-3 flex-shrink-0">
                                                                                             <button className="btn btn-icon-sm btn-light border rounded-circle" onClick={(e) => { e.stopPropagation(); handleCreate('topic', m.id, topic); }}>
                                                                                                 <FaEdit size={10} className="text-primary" />
                                                                                             </button>
@@ -853,8 +852,7 @@ const CurriculumBuilder = () => {
                                                                                             </button>
                                                                                         </div>
                                                                                     </div>
-                                                                                ))}
-                                                                                <button className="btn btn-link text-decoration-none text-primary smaller p-0 mt-2 fw-bold" onClick={() => handleCreate('topic', m.id)}>+ Define Topic</button>
+                                                                                ))}                                                                                <button className="btn btn-link text-decoration-none text-primary smaller p-0 mt-2 fw-bold" onClick={() => handleCreate('topic', m.id)}>+ Define Topic</button>
                                                                             </motion.div>
                                                                         )}
                                                                     </AnimatePresence>
@@ -956,14 +954,15 @@ const CurriculumBuilder = () => {
 
             <style>{`
                 .workspace-root { min-height: 0; }
-                .shadow-primary-glow { box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); }
+                .shadow-primary-glow { box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }
                 .hover-light:hover { background-color: rgba(0,0,0,0.03); }
                 .border-dashed { border-style: dashed !important; }
                 .shadow-ai-glow { box-shadow: 0 0 20px rgba(124, 58, 237, 0.4); }
-                .btn-ai-gradient { background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); border: none; }
+                .btn-ai-gradient { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); border: none; }
             `}</style>
         </div>
     );
 };
 
 export default CurriculumBuilder;
+

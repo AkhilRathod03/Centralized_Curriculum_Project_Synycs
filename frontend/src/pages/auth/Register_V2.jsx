@@ -50,7 +50,7 @@ const Register_V2 = () => {
         <div className="vh-100 d-flex overflow-hidden bg-white">
             {/* Left Side - 60% Branding */}
             <div className="col-lg-7 d-none d-lg-flex flex-column justify-content-center align-items-center position-relative" 
-                 style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)' }}>
+                 style={{ background: 'linear-gradient(135deg, #000000 0%, #312e81 100%)' }}>
                 
                 <div className="text-center animate__animated animate__fadeIn">
                     <div className="bg-white p-4 rounded-circle shadow-lg mb-4 d-inline-block">
@@ -165,7 +165,7 @@ const Register_V2 = () => {
             <style>{`
                 .tracking-widest { letter-spacing: 0.2em; }
                 .btn-primary { background-color: #312e81; border-color: #312e81; }
-                .btn-primary:hover { background-color: #1e1b4b; border-color: #1e1b4b; }
+                .btn-primary:hover { background-color: #000000; border-color: #000000; }
                 .text-primary { color: #312e81 !important; }
                 .hover-primary:hover { color: #312e81 !important; }
             `}</style>
@@ -174,3 +174,4 @@ const Register_V2 = () => {
 };
 
 export default Register_V2;
+

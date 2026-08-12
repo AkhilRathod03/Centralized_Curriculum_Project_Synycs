@@ -5,6 +5,8 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.http import HttpResponse, FileResponse
+from django.db.models import Count, Q, ExpressionWrapper, FloatField, Case, When, Value, Avg, Prefetch
+from django.db.models.functions import Cast, Coalesce
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -24,7 +26,6 @@ from .serializers import (
 from users.serializers import UserSerializer
 from .permissions import IsAdminUser, IsAdminOrTeacher, IsSameInstitution
 from audit.utils import log_action
-from django.db.models import Count
 
 # ── Mixin: automatically filter by user's institution ──────────────
 class InstitutionMixin:
@@ -34,7 +35,10 @@ class InstitutionMixin:
     This is the core of multi-tenancy!
     """
     def get_institution(self):
-        return self.request.user.institution
+        if not hasattr(self, '_institution'):
+            # Optimization: Cache the institution object for the duration of the request
+            self._institution = self.request.user.institution
+        return self._institution
 
 # ── Curriculum Views ────────────────────────────────────────────────
 
@@ -81,9 +85,30 @@ class ProgramListCreateView(InstitutionMixin, generics.ListCreateAPIView):
     ordering_fields = ['order', 'name', 'created_at']
 
     def get_queryset(self):
+        # Create an optimized queryset for courses to be prefetched
+        course_qs = Course.objects.annotate(
+            total_topics_count=Count('modules__topics', distinct=True),
+            completed_topics_count=Count('modules__topics', filter=Q(modules__topics__is_completed=True), distinct=True),
+            module_count_annotated=Count('modules', distinct=True),
+            teacher_count_annotated=Count('teachers', distinct=True),
+            student_count_annotated=Count('students', distinct=True)
+        ).annotate(
+            progress_annotated=Case(
+                When(total_topics_count=0, then=Value(0)),
+                Default=ExpressionWrapper(
+                    Cast('completed_topics_count', FloatField()) / Cast('total_topics_count', FloatField()) * 100,
+                    output_field=FloatField()
+                )
+            )
+        )
+
         qs = Program.objects.filter(
             institution=self.get_institution()
-        ).annotate(course_count_annotated=Count('courses', distinct=True))
+        ).annotate(
+            course_count_annotated=Count('courses', distinct=True)
+        ).prefetch_related(
+            models.Prefetch('courses', queryset=course_qs)
+        )
         
         curriculum_id = self.request.query_params.get('curriculum')
         if curriculum_id:
@@ -129,6 +154,10 @@ class ProgramDetailView(InstitutionMixin, generics.RetrieveUpdateDestroyAPIView)
 
 # ── Course Views ────────────────────────────────────────────────────
 
+from django.db import models
+from django.db.models import Count, Q, ExpressionWrapper, FloatField, Case, When, Value, Avg
+from django.db.models.functions import Cast, Coalesce
+
 class CourseListCreateView(InstitutionMixin, generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'code', 'description']
@@ -140,12 +169,26 @@ class CourseListCreateView(InstitutionMixin, generics.ListCreateAPIView):
         return CourseSerializer
 
     def get_queryset(self):
+        # OPTIMIZED: Using select_related and complex annotations to fetch everything in 1 query
         qs = Course.objects.filter(
             program__institution=self.get_institution()
-        ).annotate(
+        ).select_related('program', 'program__institution')
+        
+        # Calculate progress using database aggregation instead of Python property loops
+        qs = qs.annotate(
+            total_topics_count=Count('modules__topics', distinct=True),
+            completed_topics_count=Count('modules__topics', filter=Q(modules__topics__is_completed=True), distinct=True),
             module_count_annotated=Count('modules', distinct=True),
             teacher_count_annotated=Count('teachers', distinct=True),
             student_count_annotated=Count('students', distinct=True)
+        ).annotate(
+            progress_annotated=Case(
+                When(total_topics_count=0, then=Value(0)),
+                Default=ExpressionWrapper(
+                    Cast('completed_topics_count', FloatField()) / Cast('total_topics_count', FloatField()) * 100,
+                    output_field=FloatField()
+                )
+            )
         )
         program_id = self.request.query_params.get('program')
         semester = self.request.query_params.get('semester')
@@ -158,9 +201,14 @@ class CourseListCreateView(InstitutionMixin, generics.ListCreateAPIView):
         # Teachers only see their assigned courses
         if role == 'teacher':
             qs = qs.filter(teachers=self.request.user)
-        # Students see exactly what is in their Program and Semester
+        # Students see courses they are specifically enrolled in
         elif role == 'student':
-            if self.request.user.program:
+            # Filter the already annotated 'qs' for courses the student is enrolled in
+            enrolled_qs = qs.filter(students=self.request.user)
+            if enrolled_qs.exists():
+                qs = enrolled_qs
+            # Fallback to program/semester if no specific enrollments found
+            elif self.request.user.program:
                 qs = qs.filter(
                     program=self.request.user.program, 
                     semester=self.request.user.current_semester
@@ -410,76 +458,103 @@ class ScheduleDetailView(generics.RetrieveUpdateDestroyAPIView):
             course__program__institution=self.request.user.institution
         )
 
-class StudentScheduleExportView(APIView):
+class AcademicScheduleExportView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        if request.user.role != 'student':
-            return Response({"error": "Only students can export their personal schedule."}, status=403)
-        
-        # 1. Fetch Schedule Data
-        schedules = AcademicSchedule.objects.filter(
-            course__students=request.user
-        ).select_related('course', 'topic').order_by('start_datetime')
+        print(f"DEBUG: Export requested by {request.user.username} (Role: {request.user.role})")
+        user = request.user
+        role = user.role
+
+        # 1. Fetch Schedule Data based on Role
+        try:
+            if role == 'student':
+                schedules = AcademicSchedule.objects.filter(
+                    course__students=user
+                ).select_related('course', 'topic').order_by('start_datetime')
+                user_label = "Student"
+            elif role == 'teacher':
+                schedules = AcademicSchedule.objects.filter(
+                    course__teachers=user
+                ).select_related('course', 'topic').order_by('start_datetime')
+                user_label = "Teacher"
+            elif role == 'admin':
+                schedules = AcademicSchedule.objects.filter(
+                    course__program__institution=user.institution
+                ).select_related('course', 'topic').order_by('start_datetime')
+                user_label = "Administrator"
+            else:
+                print(f"DEBUG: Unauthorized role {role}")
+                return Response({"error": "Role not authorized for export."}, status=403)
+
+            print(f"DEBUG: Found {schedules.count()} schedules for {user_label}")
+        except Exception as e:
+            print(f"DEBUG: Database query failed: {str(e)}")
+            return Response({"error": "Database error during schedule fetch."}, status=500)
 
         if not schedules.exists():
-            return Response({"error": "No schedule found for your enrolled courses."}, status=404)
+            return Response({"error": f"No schedules found for this {user_label}."}, status=404)
 
         # 2. Generate PDF
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
-        styles = getSampleStyleSheet()
-        elements = []
+        try:
+            print("DEBUG: Starting PDF generation")
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            styles = getSampleStyleSheet()
+            elements = []
 
-        # Custom Styles
-        title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], alignment=1, spaceAfter=20, textColor=colors.HexColor('#2563eb'))
-        header_style = ParagraphStyle('HeaderStyle', parent=styles['Heading2'], spaceBefore=15, spaceAfter=10, textColor=colors.HexColor('#333333'))
-        
-        # Title
-        elements.append(Paragraph("SYNYCS PRO - ACADEMIC TIMETABLE", title_style))
-        
-        # Student Info
-        elements.append(Paragraph(f"<b>Student:</b> {request.user.first_name} {request.user.last_name} ({request.user.username})", styles['Normal']))
-        elements.append(Paragraph(f"<b>Institution:</b> {request.user.institution.name if request.user.institution else 'SYNYCS PRO CCMS'}", styles['Normal']))
-        elements.append(Paragraph(f"<b>Generated On:</b> {timezone.now().strftime('%d %b %Y, %H:%M')}", styles['Normal']))
-        elements.append(Spacer(1, 20))
+            # Custom Styles
+            title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], alignment=1, spaceAfter=20, textColor=colors.HexColor('#2563eb'))
+            
+            # Title
+            elements.append(Paragraph("SYNYCS PRO - ACADEMIC TIMETABLE", title_style))
+            
+            # User Info
+            elements.append(Paragraph(f"<b>{user_label}:</b> {user.first_name} {user.last_name} ({user.username})", styles['Normal']))
+            elements.append(Paragraph(f"<b>Institution:</b> {user.institution.name if user.institution else 'SYNYCS PRO CCMS'}", styles['Normal']))
+            elements.append(Paragraph(f"<b>Generated On:</b> {timezone.now().strftime('%d %b %Y, %H:%M')}", styles['Normal']))
+            elements.append(Spacer(1, 20))
 
-        # Schedule Table
-        data = [["Date", "Time", "Course", "Topic", "Room"]]
-        for s in schedules:
-            date_str = s.start_datetime.strftime("%d %b (%a)")
-            time_str = f"{s.start_datetime.strftime('%H:%M')} - {s.end_datetime.strftime('%H:%M')}"
-            data.append([
-                date_str,
-                time_str,
-                s.course.name,
-                s.topic.name,
-                s.room if s.room else "TBA"
-            ])
+            # Schedule Table
+            data = [["Date", "Time", "Course", "Topic", "Room"]]
+            for s in schedules:
+                date_str = s.start_datetime.strftime("%d %b (%a)")
+                time_str = f"{s.start_datetime.strftime('%H:%M')} - {s.end_datetime.strftime('%H:%M')}"
+                data.append([
+                    date_str,
+                    time_str,
+                    s.course.name,
+                    s.topic.name,
+                    s.room if s.room else "TBA"
+                ])
 
-        t = Table(data, colWidths=[80, 100, 140, 140, 60])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2563eb')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ]))
-        elements.append(t)
-        
-        # Footer
-        elements.append(Spacer(1, 40))
-        elements.append(Paragraph("<font size=8 color='grey'>This is an AI-generated academic schedule. Subject to change by institution administration.</font>", styles['Normal']))
+            t = Table(data, colWidths=[80, 100, 140, 140, 60])
+            t.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2563eb')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ]))
+            elements.append(t)
+            
+            # Footer
+            elements.append(Spacer(1, 40))
+            elements.append(Paragraph("<font size=8 color='grey'>This is an AI-generated academic schedule. Subject to change by institution administration.</font>", styles['Normal']))
 
-        doc.build(elements)
-        buffer.seek(0)
-        
-        return FileResponse(buffer, as_attachment=True, filename=f"Timetable_{request.user.last_name}.pdf")
+            doc.build(elements)
+            print("DEBUG: PDF generation complete")
+            buffer.seek(0)
+            
+            return FileResponse(buffer, as_attachment=True, filename=f"Timetable_{user.last_name}.pdf")
+        except Exception as e:
+            print(f"DEBUG: PDF generation failed: {str(e)}")
+            return Response({"error": "Failed to generate PDF document."}, status=500)
 
 
 # ── Attendance Views ──────────────────────────────────────────────

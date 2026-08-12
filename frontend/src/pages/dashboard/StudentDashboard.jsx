@@ -26,10 +26,12 @@ const StudentDashboard = () => {
     });
 
     useEffect(() => {
-        fetchStudentData();
-    }, []);
+        if (user) {
+            fetchStudentData();
+        }
+    }, [user]);
 
-    const fetchStudentData = async () => {
+    const fetchStudentData = async (retries = 3) => {
         try {
             setLoading(true);
             const res = await axiosInstance.get('curriculum/courses/');
@@ -38,31 +40,20 @@ const StudentDashboard = () => {
             let totalT = 0;
             let doneT = 0;
 
-            const enriched = await Promise.all(coursesData.map(async (course) => {
-                const modulesRes = await axiosInstance.get(`curriculum/courses/${course.id}/modules/`);
-                const modules = modulesRes.data.results || modulesRes.data;
-                
-                let cTotal = 0;
-                let cDone = 0;
-                modules.forEach(m => {
-                    if (m.topics) {
-                        m.topics.forEach(t => {
-                            cTotal++;
-                            if (t.is_completed) cDone++;
-                        });
-                    }
-                });
+            const enriched = coursesData.map((course) => {
+                const cTotal = course.topic_count || 0;
+                const cDone = course.completed_topic_count || 0;
                 
                 totalT += cTotal;
                 doneT += cDone;
 
                 return {
                     ...course,
-                    progress: cTotal > 0 ? Math.round((cDone / cTotal) * 100) : 0,
+                    progress: course.progress || 0,
                     topicCount: cTotal,
                     doneCount: cDone
                 };
-            }));
+            });
 
             setCourses(enriched);
             setStats({
@@ -73,8 +64,14 @@ const StudentDashboard = () => {
             });
             setLoading(false);
         } catch (err) {
-            toast.error('Failed to load student dashboard');
-            setLoading(false);
+            if (retries > 0) {
+                // SILENT RETRY: Wait 2 seconds and try again in the background
+                setTimeout(() => fetchStudentData(retries - 1), 2000);
+            } else {
+                // GAVE UP: Just stop the spinner silently
+                console.warn('Student dashboard sync delayed.');
+                setLoading(false);
+            }
         }
     };
 
@@ -127,7 +124,7 @@ const StudentDashboard = () => {
                     </div>
                     <div className="col-lg-7 ps-lg-4">
                         <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="d-inline-flex align-items-center bg-white bg-opacity-20 rounded-pill px-3 py-1 mb-2 border border-white border-opacity-25 shadow-sm">
-                            <FaAward className="me-2 text-warning" size={10} /> <span className="small fw-bold uppercase letter-spacing-1 text-white" style={{ fontSize: '0.6rem' }}>Dean's List Contender</span>
+                            <FaAward className="me-2 text-warning" size={10} /> <span className="small fw-bold uppercase letter-spacing-1 text-white" style={{ fontSize: '0.6rem' }}>{user?.institution_name || 'Academic Scholar'}</span>
                         </motion.div>
                         <h2 className="fw-bold mb-1 display-title text-white">Hi, {user?.username}! Ready to learn? 🚀</h2>
                         <div className="d-flex flex-wrap gap-3 mt-2">
@@ -174,12 +171,12 @@ const StudentDashboard = () => {
             {/* 2. KPI Cards */}
             <div className="row g-3 mb-4">
                 {[
-                    { label: 'Active Courses', val: courses.length, icon: <FaBook />, color: '#2563eb', trend: 'Current', path: '/courses' },
+                    { label: 'Active Courses', val: courses.length, icon: <FaBook />, color: '#000000', trend: 'Current', path: '/courses' },
                     { label: 'Topics Done', val: stats.completedTopics, icon: <FaCheckCircle />, color: '#10b981', trend: `of ${stats.totalTopics}`, path: '/courses' },
-                    { label: 'Study Resources', val: '48', icon: <FaFolderOpen />, color: '#6366f1', trend: 'Cloud', path: '/resources' },
-                    { label: 'My Faculty', val: '12', icon: <FaUserGraduate />, color: '#7c3aed', trend: 'Active', path: '/my-faculty' },
+                    { label: 'Study Resources', val: '48', icon: <FaFolderOpen />, color: '#2d2d2d', trend: 'Cloud', path: '/resources' },
+                    { label: 'My Faculty', val: '12', icon: <FaUserGraduate />, color: '#1a1a1a', trend: 'Active', path: '/my-faculty' },
                     { label: 'Attendance', val: `${stats.attendance}%`, icon: <FaCalendarCheck />, color: '#f59e0b', trend: 'Stable', path: '/attendance' },
-                    { label: 'Credits', val: '18', icon: <FaAward />, color: '#06b6d4', trend: '+3', path: '/courses' },
+                    { label: 'Credits', val: '18', icon: <FaAward />, color: '#333333', trend: '+3', path: '/courses' },
                     { label: 'Study Streak', val: '12 Days', icon: <FaClock />, color: '#ec4899', trend: 'Fire', path: '/schedule' },
                 ].map((s, i) => (
                     <motion.div key={i} className="col-6 col-md-4 col-xl-2" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: i * 0.05 }}>
@@ -283,3 +280,4 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+
