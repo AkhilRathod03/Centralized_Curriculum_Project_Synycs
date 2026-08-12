@@ -3,10 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FaBrain, FaMagic, FaCheckCircle, FaRobot, FaDownload, 
     FaChevronRight, FaRegCopy, FaPlay, FaQuestionCircle,
-    FaCode, FaListOl, FaTerminal, FaSave, FaFileAlt
+    FaCode, FaListOl, FaTerminal, FaSave, FaFileAlt, FaExclamationTriangle
 } from 'react-icons/fa';
 import { ThemeContext } from '../../context/ThemeContext';
 import { toast } from 'react-toastify';
+import axiosInstance from '../../api/axiosInstance';
+
+const QUESTION_TYPES = { MCQ: 'mcq', CODE: 'short', DESC: 'short' };
+
+const normalizeQuestions = (questions) => questions.map((q, i) => {
+    const options = Array.isArray(q.options) ? q.options : [];
+    return {
+        id: i + 1,
+        question: q.question || '',
+        options,
+        answer: options.indexOf(q.answer),
+        answerText: q.answer,
+        explanation: q.explanation || ''
+    };
+});
 
 const AIQuizGenerator = () => {
     const { darkMode } = useContext(ThemeContext);
@@ -19,30 +34,45 @@ const AIQuizGenerator = () => {
         difficulty: 'Intermediate'
     });
 
-    const handleGenerate = () => {
+    const [error, setError] = useState(null);
+
+    const handleGenerate = async () => {
         if (!formData.topic) return toast.warning("Please specify a topic");
+
         setIsGenerating(true);
         setQuizData(null);
+        setError(null);
 
-        // Simulate AI synthesis
-        setTimeout(() => {
-            const mockQuestions = Array.from({ length: formData.count }).map((_, i) => ({
-                id: i + 1,
-                question: `What is the primary role of ${formData.topic} in modern architecture?`,
-                options: ["Performance optimization", "Security enhancement", "Data persistence", "Visual styling"],
-                answer: 0,
-                explanation: `${formData.topic} facilitates highly optimized computation paths...`
-            }));
+        try {
+            const { data } = await axiosInstance.post('ai/generate-quiz/', {
+                topic: formData.topic,
+                num_questions: Number(formData.count) || 5,
+                difficulty: formData.difficulty,
+                question_type: QUESTION_TYPES[formData.type] || 'mcq'
+            });
+
+            const questions = normalizeQuestions(Array.isArray(data.quiz) ? data.quiz : []);
+            if (questions.length === 0) {
+                throw new Error('empty');
+            }
 
             setQuizData({
                 topic: formData.topic,
                 type: formData.type,
                 difficulty: formData.difficulty,
-                questions: mockQuestions
+                questions
             });
-            setIsGenerating(false);
             toast.success("Futuristic assessment ready!");
-        }, 2500);
+        } catch (err) {
+            const detail = err.response?.data?.error;
+            const message = err.response?.status === 429
+                ? "The AI quota is exhausted. Try again later or use a billing-enabled API key."
+                : detail || "The AI service could not generate this quiz. Please try again.";
+            setError(message);
+            toast.error(message);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (
@@ -149,6 +179,19 @@ const AIQuizGenerator = () => {
                                         <h3 className={`${darkMode ? 'text-white' : 'text-dark'} fw-bold mb-2`}>Analyzing Knowledge Base...</h3>
                                         <p className="text-muted smaller letter-spacing-1">EXTRACTING SEMANTIC CONTEXT • GENERATING DISTRACTORS</p>
                                     </motion.div>
+                                ) : error ? (
+                                    <motion.div
+                                        key="error"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                        className="d-flex align-items-center justify-content-center h-100 flex-column text-center p-5"
+                                    >
+                                        <div className="rounded-circle p-4 mb-4 bg-danger bg-opacity-10">
+                                            <FaExclamationTriangle size={48} className="text-danger" />
+                                        </div>
+                                        <h4 className={`fw-bold ${darkMode ? 'text-white' : 'text-dark'}`}>Generation Failed</h4>
+                                        <p className="text-muted w-75 small">{error}</p>
+                                        <button className="btn btn-outline-primary rounded-pill px-4" onClick={handleGenerate}>Retry</button>
+                                    </motion.div>
                                 ) : quizData ? (
                                     <motion.div 
                                         key="quiz"
@@ -185,6 +228,13 @@ const AIQuizGenerator = () => {
                                                         </div>
                                                     ))}
                                                 </div>
+                                                {q.options.length === 0 && q.answerText && (
+                                                    <div className="ps-lg-5">
+                                                        <div className={`p-3 rounded-4 border border-primary bg-primary bg-opacity-10 text-primary`}>
+                                                            <span className="fw-bold me-2">Model answer:</span> {q.answerText}
+                                                        </div>
+                                                    </div>
+                                                )}
                                                 <div className="mt-4 ps-lg-5">
                                                     <div className={`p-3 rounded-4 border border-dashed border-opacity-20 ${darkMode ? 'bg-light bg-opacity-5 border-white' : 'bg-white border-primary'}`}>
                                                         <span className="smaller fw-bold text-success text-uppercase">AI Explanation:</span>
