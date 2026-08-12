@@ -3,10 +3,37 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FaBrain, FaMagic, FaRocket, FaClock, FaSignal, 
     FaFileAlt, FaCheckCircle, FaRobot, FaDownload, 
-    FaChevronRight, FaRegCopy, FaPlay
+    FaChevronRight, FaRegCopy, FaPlay, FaExclamationTriangle
 } from 'react-icons/fa';
 import { ThemeContext } from '../../context/ThemeContext';
 import { toast } from 'react-toastify';
+import axiosInstance from '../../api/axiosInstance';
+
+const METHODOLOGIES = ['Inquiry Based', 'Direct Instruction', 'Flipped Classroom', 'Gamified'];
+
+const normalizePlan = (plan, fallbackTitle) => {
+    const timeline = Array.isArray(plan.timeline) ? plan.timeline : [];
+    let elapsed = 0;
+
+    return {
+        title: plan.title || fallbackTitle,
+        summary: plan.summary || '',
+        learning_outcomes: plan.objectives || [],
+        suggested_materials: plan.materials || [],
+        assessment: plan.assessment || [],
+        homework: plan.homework || '',
+        timeline: timeline.map((item) => {
+            const minutes = Number(item.duration) || 0;
+            const start = elapsed;
+            elapsed += minutes;
+            return {
+                time: `${start}-${elapsed}m`,
+                title: item.phase || 'Segment',
+                desc: item.activity || ''
+            };
+        })
+    };
+};
 
 const AILessonPlanner = () => {
     const { darkMode } = useContext(ThemeContext);
@@ -16,38 +43,43 @@ const AILessonPlanner = () => {
         topic: '',
         duration: '60 mins',
         difficulty: 'Intermediate',
-        objectives: ['Analyze core concepts', 'Practical implementation'],
+        methodology: '',
     });
 
     const [generatedPlan, setGeneratedPlan] = useState(null);
+    const [error, setError] = useState(null);
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
         if (!formData.topic) return toast.warning("Please specify a topic");
+
+        const durationMinutes = formData.duration === '2 hours' ? 120 : parseInt(formData.duration, 10);
+
         setIsGenerating(true);
         setGeneratedPlan(null);
+        setError(null);
 
-        // Simulate AI generation
-        setTimeout(() => {
-            setGeneratedPlan({
-                title: formData.topic,
-                summary: `A comprehensive ${formData.duration} lesson on ${formData.topic} designed for ${formData.difficulty} level students.`,
-                learning_outcomes: [
-                    "Understand the fundamental architecture of " + formData.topic,
-                    "Identify key industry use cases and best practices",
-                    "Develop a working prototype using standard libraries"
-                ],
-                timeline: [
-                    { time: "0-10m", title: "Introduction & Context", desc: "Setting the stage and exploring real-world relevance." },
-                    { time: "10-30m", title: "Core Theoretical Framework", desc: "Deep dive into the underlying logic and patterns." },
-                    { time: "30-50m", title: "Interactive Workshop", desc: "Hands-on implementation and problem-solving session." },
-                    { time: "50-60m", title: "Q&A and Synthesis", desc: "Reviewing key takeaways and mapping future learning paths." }
-                ],
-                suggested_materials: ["Architecture Diagram PDF", "Sample Code Repository", "Assessment MCQ Sheet"]
+        try {
+            const { data } = await axiosInstance.post('ai/lesson-plan/', {
+                subject: formData.topic,
+                topic: formData.topic,
+                duration: durationMinutes,
+                grade_level: `${formData.difficulty} level students`,
+                focus: formData.methodology ? `Use a ${formData.methodology} teaching methodology.` : ''
             });
-            setIsGenerating(false);
+
+            setGeneratedPlan(normalizePlan(data.plan || {}, formData.topic));
             setStep(2);
             toast.success("AI Lesson Plan generated successfully!");
-        }, 3000);
+        } catch (err) {
+            const detail = err.response?.data?.error;
+            const message = err.response?.status === 429
+                ? "The AI quota is exhausted. Try again later or use a billing-enabled API key."
+                : detail || "The AI service could not generate a lesson plan. Please try again.";
+            setError(message);
+            toast.error(message);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const containerVariants = {
@@ -123,8 +155,13 @@ const AILessonPlanner = () => {
                             <div className="mb-4">
                                 <label className="form-label smaller fw-bold text-muted uppercase mb-2">Teaching Methodology</label>
                                 <div className="d-flex flex-wrap gap-2">
-                                    {['Inquiry Based', 'Direct Instruction', 'Flipped Classroom', 'Gamified'].map(m => (
-                                        <button key={m} className={`btn btn-sm rounded-pill px-3 border-opacity-25 py-1 text-xs ${darkMode ? 'btn-outline-primary' : 'btn-outline-secondary'}`}>
+                                    {METHODOLOGIES.map(m => (
+                                        <button
+                                            key={m}
+                                            type="button"
+                                            onClick={() => setFormData({...formData, methodology: formData.methodology === m ? '' : m})}
+                                            className={`btn btn-sm rounded-pill px-3 border-opacity-25 py-1 text-xs ${formData.methodology === m ? 'btn-primary' : (darkMode ? 'btn-outline-primary' : 'btn-outline-secondary')}`}
+                                        >
                                             {m}
                                         </button>
                                     ))}
@@ -169,6 +206,19 @@ const AILessonPlanner = () => {
                                         </div>
                                         <p className="mt-4 text-muted small letter-spacing-1">MAPPING CURRICULUM NODES • GENERATING LEARNING OUTCOMES</p>
                                     </motion.div>
+                                ) : error ? (
+                                    <motion.div
+                                        key="error"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                        className="d-flex align-items-center justify-content-center h-100 flex-column text-center p-5"
+                                    >
+                                        <div className="rounded-circle p-4 mb-4 bg-danger bg-opacity-10">
+                                            <FaExclamationTriangle size={48} className="text-danger" />
+                                        </div>
+                                        <h4 className={`fw-bold ${darkMode ? 'text-white' : 'text-dark'}`}>Generation Failed</h4>
+                                        <p className="text-muted w-75 small">{error}</p>
+                                        <button className="btn btn-outline-primary rounded-pill px-4" onClick={handleGenerate}>Retry</button>
+                                    </motion.div>
                                 ) : generatedPlan ? (
                                     <motion.div 
                                         key="result"
@@ -210,6 +260,27 @@ const AILessonPlanner = () => {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {(generatedPlan.assessment.length > 0 || generatedPlan.homework) && (
+                                            <div className="row g-4 mb-5">
+                                                {generatedPlan.assessment.length > 0 && (
+                                                    <div className="col-md-6">
+                                                        <h6 className="text-primary fw-bold text-uppercase smaller mb-3">Assessment</h6>
+                                                        {generatedPlan.assessment.map((a, i) => (
+                                                            <div key={i} className={`d-flex align-items-center small mb-2 ${darkMode ? 'text-white-50' : 'text-dark-50'}`}>
+                                                                <FaCheckCircle className="text-info me-3" size={12} /> {a}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {generatedPlan.homework && (
+                                                    <div className="col-md-6">
+                                                        <h6 className="text-primary fw-bold text-uppercase smaller mb-3">Homework</h6>
+                                                        <p className="small text-muted mb-0">{generatedPlan.homework}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
 
                                         <h6 className="text-primary fw-bold text-uppercase smaller mb-4">Lesson Sequence</h6>
                                         <div className={`timeline-ai ps-3 border-start ${darkMode ? 'border-white border-opacity-10' : 'border-light'}`}>

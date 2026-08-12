@@ -96,7 +96,7 @@ const CurriculumBuilder = () => {
             setIsGeneratingIntel(false);
             toast.success("Intelligence data generated.");
         } catch (err) {
-            toast.error("Generation failed.");
+            toast.error(err.response?.data?.error || "Generation failed.");
             setIsGeneratingIntel(false);
         }
     };
@@ -221,7 +221,7 @@ const CurriculumBuilder = () => {
             setShowAiSuggestions(true);
             setIsAnalyzing(false);
         } catch (err) {
-            toast.error("AI Analysis failed.");
+            toast.error(err.response?.data?.error || "AI Analysis failed.");
             setIsAnalyzing(false);
         }
     };

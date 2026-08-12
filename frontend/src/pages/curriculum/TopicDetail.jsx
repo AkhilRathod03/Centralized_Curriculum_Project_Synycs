@@ -39,7 +39,7 @@ const TopicDetail = () => {
             setShowQuizModal(true);
             toast.success(`Generated ${res.data.quiz.length} questions!`);
         } catch (err) {
-            toast.error('AI Quiz Generation failed');
+            toast.error(err.response?.data?.error || 'AI Quiz Generation failed');
         } finally {
             setIsAiLoading(false);
         }
