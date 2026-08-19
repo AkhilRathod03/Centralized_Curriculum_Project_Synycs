@@ -18,9 +18,31 @@ description: How to bring up and end-to-end test the CCMS Pro portal (Django RES
 
 ## Credentials
 
-`admin_akhil/admin123`, `teacher_kumar/teacher123`, `student_rao/student123`.
+Easiest: run `venv/bin/python seed_simple_logins.py`, which creates/refreshes three memorable accounts —
+`admin/admin`, `teacher/teacher`, `student/student` — cloned from `admin_main` / `teacher_1` / `student_1`
+(same institution "Synycs Academy of Technology", program, year/semester, plus mirrored `CourseAssignment`
+rows for the teacher). The script is idempotent (`get_or_create` + `set_password`), so re-running it prints
+`Updated ...`, resets the passwords, and adds no duplicate rows — handy when a password has drifted or an
+account got de-approved. It also forces `is_approved=True` / `is_active=True`.
+
+Older accounts: `admin_akhil/admin123`, `teacher_kumar/teacher123`, `student_rao/student123`.
 `seed_custom.py` also creates `admin_main`, `teacher_1..4`, `student_1..3` — read that script for their passwords.
-Prefer `student_1` for student-portal testing: it has a program and enrollments, so pages render real data.
+Prefer `student_1` (or `student`) for student-portal testing: it has a program, so pages render real data.
+
+**Login redirect** is `navigate(`/${user.role}-dashboard`)` in `Login.jsx`, so the account's `role` column
+alone decides which dashboard you land on.
+
+### Proving a course-linking seed actually worked
+
+`curriculum/views.py` scopes the Courses list very differently per role, which decides what is a meaningful test:
+- **teacher** → `qs.filter(teachers=user)`, **strict, no fallback**. An empty teacher Courses page means the
+  `CourseAssignment` rows are missing. This makes the teacher the *only* reliable end-to-end proof that
+  course-link mirroring worked (`teacher` should show exactly CS101, CS201, CS301, CS401).
+- **student** → enrollments *if any exist*, otherwise **falls back** to `program` + `current_semester`.
+  Both `student` and `student_1` have **zero** `CourseEnrollment` rows, yet the portal still shows CS101 via
+  that fallback. So "the student sees courses" proves nothing about enrollment mirroring — it would look
+  identical if that code were deleted. Check `CourseEnrollment.objects.filter(student=...)` in the DB before
+  crediting enrollment logic.
 
 ## Verifying JWT + CORS (the usual regression risk)
 
@@ -36,6 +58,15 @@ Fast, reliable checks that do not need DevTools:
 
 Role gating is enforced client-side in `frontend/src/components/routing/ProtectedRoute.jsx` with
 `allowedRoles`; a student visiting `/curriculum` should land on `/unauthorized` showing "403 - Unauthorized".
+
+**Do not assume every admin page is gated.** In `frontend/src/App.js` the only `allowedRoles` group is
+`['admin','teacher']` around `/curriculum` and `/curriculum/topic/:id`. `/users` and `/audit-logs` sit in the
+plain `ProtectedRoute` (authenticated-only) group. On the backend, `users/views.py` `InstitutionUsersView`
+and `ApproveUserView` declare **no `permission_classes`**, so they fall back to `IsAuthenticated` only.
+Net effect observed: a *student* can open `/users`, list every user in the institution, and successfully
+POST `/api/auth/users/<id>/approve/` to revoke or grant another user's access (HTTP 200, audit row written
+with the student as operator). When testing authorization, always probe `/users` + the Revoke button as a
+non-admin, not just `/curriculum` — the `/curriculum` check passes and hides this.
 
 ## Testing the AI / Gemini features
 
@@ -94,6 +125,15 @@ Check these against `main` before reporting them as regressions:
 - Teacher accounts can be left unapproved, in which case login legitimately fails with "pending admin approval" and logs a 400. Approve the user in admin User Management and retry.
 - `AILessonPlanner.jsx` and `AIQuizGenerator.jsx` are mock/template pages that never call the backend, regardless of whether a real Gemini key is configured.
 - `POST /api/ai/courses/<id>/suggest-modules/` and `.../suggest-order/` exist server-side but have no frontend caller; they may be dead endpoints rather than broken ones.
+- Non-admin roles may be able to reach `/users` and mutate approval state (see the role-gating note above); this is a backend permission gap, not something a seed/credentials change introduces.
+- Dark mode is pure black (`#000000`) with white text via `index.css`, toggled by the sun/moon button in `Navbar.jsx`. Some card sub-values still inherit a near-black colour (e.g. the admin dashboard "AI Intel" / Neural Insights values compute to `rgb(26,26,26)`), rendering effectively invisible on the black background. Verify contrast with `getComputedStyle` on the actual text node rather than trusting the page-level background check.
+
+## Checking theme/contrast objectively
+
+Don't eyeball dark mode. After toggling, read the computed styles:
+`getComputedStyle(document.body).backgroundColor` should be `rgb(0, 0, 0)` and colour `rgb(255, 255, 255)`,
+with `body.dark-mode` present and `<html data-bs-theme="dark">`. Then spot-check individual value/label
+nodes inside cards — the page-level check passes even when specific text is black-on-black.
 
 ## Devin Secrets Needed
 
